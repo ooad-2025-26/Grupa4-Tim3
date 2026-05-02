@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ESportskiCentar")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7f96073a5cea933da99de2f40326a4f7692c3be0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+de34eae8393ec7d5041caa34bd035c3bf58506d1")]
 [assembly: System.Reflection.AssemblyProductAttribute("ESportskiCentar")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ESportskiCentar")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
