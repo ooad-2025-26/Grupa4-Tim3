@@ -1,0 +1,56 @@
+﻿@model ESportskiCentar.Models.Rezervacija
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Rezervacija</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="status" class="control-label"></label>
+                <select asp-for="status" class="form-control" asp-items="Html.GetEnumSelectList<ESportskiCentar.Models.Status>()"></select>
+                <span asp-validation-for="status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="terminID" class="control-label"></label>
+                <select asp-for="terminID" class ="form-control" asp-items="ViewBag.terminID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="korisnikID" class="control-label"></label>
+                <select asp-for="korisnikID" class ="form-control" asp-items="ViewBag.korisnikID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="vrijemeRezervacije" class="control-label"></label>
+                <input asp-for="vrijemeRezervacije" class="form-control" />
+                <span asp-validation-for="vrijemeRezervacije" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="primjenjenPopust" /> @Html.DisplayNameFor(model => model.primjenjenPopust)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="konacnaCijena" class="control-label"></label>
+                <input asp-for="konacnaCijena" class="form-control" />
+                <span asp-validation-for="konacnaCijena" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
