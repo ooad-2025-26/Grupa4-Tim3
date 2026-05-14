@@ -19,13 +19,13 @@
                 @Html.DisplayNameFor(model => model.prezime)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.lozinka)
+                @Html.DisplayNameFor(model => model.PasswordHash)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.korisnickoIme)
+                @Html.DisplayNameFor(model => model.UserName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.email)
+                @Html.DisplayNameFor(model => model.Email)
             </th>
             <th></th>
         </tr>
@@ -40,18 +40,18 @@
                 @Html.DisplayFor(modelItem => item.prezime)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.lozinka)
+                @Html.DisplayFor(modelItem => item.PasswordHash)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.korisnickoIme)
+                @Html.DisplayFor(modelItem => item.UserName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.email)
+                @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
 }

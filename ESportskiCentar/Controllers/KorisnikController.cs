@@ -34,7 +34,7 @@ namespace ESportskiCentar.Controllers
             }
 
             var korisnik = await _context.Korisnici
-                .FirstOrDefaultAsync(m => m.id == id);
+                .FirstOrDefaultAsync(m => int.Parse(m.Id) == id);
             if (korisnik == null)
             {
                 return NotFound();
@@ -88,7 +88,7 @@ namespace ESportskiCentar.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("id,ime,prezime,lozinka,korisnickoIme,email")] Korisnik korisnik)
         {
-            if (id != korisnik.id)
+            if (id !=int.Parse( korisnik.Id))
             {
                 return NotFound();
             }
@@ -102,7 +102,7 @@ namespace ESportskiCentar.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!KorisnikExists(korisnik.id))
+                    if (!KorisnikExists(int.Parse(korisnik.Id)))
                     {
                         return NotFound();
                     }
@@ -125,7 +125,7 @@ namespace ESportskiCentar.Controllers
             }
 
             var korisnik = await _context.Korisnici
-                .FirstOrDefaultAsync(m => m.id == id);
+                .FirstOrDefaultAsync(m =>int.Parse( m.Id) == id);
             if (korisnik == null)
             {
                 return NotFound();
@@ -151,7 +151,7 @@ namespace ESportskiCentar.Controllers
 
         private bool KorisnikExists(int id)
         {
-            return _context.Korisnici.Any(e => e.id == id);
+            return _context.Korisnici.Any(e => int.Parse(e.Id) == id);
         }
     }
 }
