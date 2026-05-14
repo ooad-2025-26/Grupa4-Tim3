@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ESportskiCentar.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext(options)
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<Korisnik>(options)
     {
         public DbSet<Korisnik> Korisnici { get; set; }
         public DbSet<Teren> Tereni { get; set; }
@@ -16,7 +16,12 @@ namespace ESportskiCentar.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Korisnik>().ToTable("Korisnik");
+            modelBuilder.Entity<Korisnik>(b =>
+            {
+                b.Property(u => u.ime);
+                b.Property(u => u.prezime);
+            });
+
             modelBuilder.Entity<Teren>().ToTable("Teren");
             modelBuilder.Entity<Termin>().ToTable("Termin");
             modelBuilder.Entity<Rezervacija>().ToTable("Rezervacija");
