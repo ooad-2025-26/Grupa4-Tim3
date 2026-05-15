@@ -11,7 +11,7 @@ namespace ESportskiCentar.Models
         [ForeignKey("Termin")]
         public int terminID { get; set; }
         [ForeignKey("Korisnik")]
-        public int korisnikID { get; set; }
+        public String korisnikID { get; set; }
         public DateTime vrijemeRezervacije { get; set; }
         public bool primjenjenPopust { get; set; }
         public double konacnaCijena { get; set; }

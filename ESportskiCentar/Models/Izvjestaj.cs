@@ -9,7 +9,7 @@ namespace ESportskiCentar.Models
         public int id { get; set; }
         public DateTime datumGenerisanja { get; set; }
         [ForeignKey("Korisnik")]
-        public int korisnikID { get; set; }
+        public String korisnikID { get; set; }
         public DateTime datumOd { get; set; }
         public DateTime datumDo { get; set; }
 
