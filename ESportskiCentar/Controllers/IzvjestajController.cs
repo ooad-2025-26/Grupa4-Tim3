@@ -48,7 +48,7 @@ namespace ESportskiCentar.Controllers
         // GET: Izvjestaj/Create
         public IActionResult Create()
         {
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici, "id", "id");
+            ViewData["korisnikID"] = new SelectList(_context.Korisnici.ToList(), "Id", "ime");
             return View();
         }
 
@@ -65,7 +65,7 @@ namespace ESportskiCentar.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici, "id", "id", izvjestaj.korisnikID);
+            ViewData["korisnikID"] = new SelectList(_context.Korisnici.ToList(), "id", "id", izvjestaj.korisnikID);
             return View(izvjestaj);
         }
 
@@ -82,7 +82,7 @@ namespace ESportskiCentar.Controllers
             {
                 return NotFound();
             }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici, "id", "id", izvjestaj.korisnikID);
+            ViewData["korisnikID"] = new SelectList(_context.Korisnici.ToList(), "Id", "ime", izvjestaj.korisnikID);
             return View(izvjestaj);
         }
 
@@ -118,7 +118,7 @@ namespace ESportskiCentar.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici, "id", "id", izvjestaj.korisnikID);
+            ViewData["korisnikID"] = new SelectList(_context.Korisnici.ToList(), "Id", "ime", izvjestaj.korisnikID);
             return View(izvjestaj);
         }
 

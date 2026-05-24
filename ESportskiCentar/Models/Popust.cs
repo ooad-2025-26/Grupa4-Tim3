@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -8,7 +9,9 @@ namespace ESportskiCentar.Models
     {
         [Key]
         public int id { get; set; }
+        [DisplayName("Potreban broj rezervacija za ostvarenje popusta")]
         public int potrebanBrojRezervacija { get; set; }
-        public double procenat { get; set; }
+        [DisplayName("Procenat popusta")]
+        public double procenat { get; set; } = 0;
     }
 }

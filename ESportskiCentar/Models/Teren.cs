@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -8,7 +9,11 @@ namespace ESportskiCentar.Models
     {
         [Key]
         public int id { get; set; }
+
+        [DisplayName("Naziv terena")]
         public string naziv { get; set; }
+
+        [DisplayName("Sport")]
         public Sport sport { get; set; }
     }
 }
