@@ -1,41 +1,39 @@
 ﻿@model IEnumerable<ESportskiCentar.Models.Popust>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Popusti";
 }
 
-<h1>Index</h1>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Popusti</h1>
+        <p>Definisanje pravila za automatsku dodjelu popusta.</p>
+    </div>
+</section>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<div class="text-center mt-4">
+    <a asp-action="Create" class="btn btn-main">Novi popust</a>
+</div>
+
+<table class="table table-custom">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.potrebanBrojRezervacija)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.procenat)
-            </th>
-            <th></th>
+            <th>Broj rezervacija</th>
+            <th>Popust (%)</th>
+            <th>Akcije</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.potrebanBrojRezervacija)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.procenat)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.potrebanBrojRezervacija</td>
+                <td>@item.procenat</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.id">Uredi</a> |
+                    <a asp-action="Delete" asp-route-id="@item.id">Obriši</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

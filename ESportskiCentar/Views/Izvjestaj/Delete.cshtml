@@ -1,45 +1,60 @@
 ﻿@model ESportskiCentar.Models.Izvjestaj
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Obriši izvještaj";
 }
 
-<h1>Delete</h1>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Obriši izvještaj</h1>
+        <p>Potvrdite brisanje generisanog izvještaja.</p>
+    </div>
+</section>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Izvjestaj</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.datumGenerisanja)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.datumGenerisanja)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.datumOd)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.datumOd)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.datumDo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.datumDo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Korisnik)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Korisnik.Id)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
+<div class="page-card">
+    <h1>Da li ste sigurni?</h1>
+
+    <p>
+        <strong>Korisnik:</strong>
+        @Model.Korisnik?.Email
+    </p>
+
+    <p>
+        <strong>Od datuma:</strong>
+        @Model.datumOd.ToString("dd.MM.yyyy")
+    </p>
+
+    <p>
+        <strong>Do datuma:</strong>
+        @Model.datumDo.ToString("dd.MM.yyyy")
+    </p>
+
+    <p>
+        <strong>Datum generisanja:</strong>
+        @Model.datumGenerisanja.ToString("dd.MM.yyyy HH:mm")
+    </p>
+
+    <p>
+        <strong>Ukupno rezervacija:</strong>
+        @Model.ukupnoRezervacija
+    </p>
+
+    <p>
+        <strong>Ukupna zarada:</strong>
+        @Model.ukupnaZarada KM
+    </p>
+
+    <form asp-action="Delete" method="post">
         <input type="hidden" asp-for="id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-main">
+                Obriši
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary ms-2">
+                Odustani
+            </a>
+        </div>
     </form>
 </div>

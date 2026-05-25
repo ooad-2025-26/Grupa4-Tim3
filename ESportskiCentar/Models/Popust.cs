@@ -9,7 +9,7 @@ namespace ESportskiCentar.Models
     {
         [Key]
         public int id { get; set; }
-        [DisplayName("Potreban broj rezervacija za ostvarenje popusta")]
+        [DisplayName("Potreban broj rezervacija")]
         public int potrebanBrojRezervacija { get; set; }
         [DisplayName("Procenat popusta")]
         public double procenat { get; set; } = 0;

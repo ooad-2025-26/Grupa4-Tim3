@@ -1,40 +1,56 @@
 ﻿@model ESportskiCentar.Models.Teren
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Dodaj teren";
 }
 
-<h1>Create</h1>
-
-<h4>Teren</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="naziv" class="control-label"></label>
-                <input asp-for="naziv" class="form-control" />
-                <span asp-validation-for="naziv" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="sport" class="control-label"></label>
-                <select asp-for="sport" class="form-control"
-                        asp-items="Html.GetEnumSelectList<ESportskiCentar.Models.Sport>()">
-                </select>
-                <span asp-validation-for="sport" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Dodaj teren</h1>
+        <p>Unesite osnovne informacije o terenu.</p>
     </div>
-</div>
+</section>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="page-card">
+
+    <h1>Novi teren</h1>
+
+    <form asp-action="Create">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="naziv" class="form-label"></label>
+            <input asp-for="naziv" class="form-control" />
+            <span asp-validation-for="naziv" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="sport" class="form-label"></label>
+
+            <select asp-for="sport" class="form-select"
+                    asp-items="Html.GetEnumSelectList<Sport>()">
+            </select>
+
+            <span asp-validation-for="sport" class="text-danger"></span>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-main">
+                Sačuvaj
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary ms-2">
+                Nazad
+            </a>
+        </div>
+
+    </form>
+
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

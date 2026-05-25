@@ -22,6 +22,6 @@ namespace ESportskiCentar.Models
         [ForeignKey("Teren")]
         public int terenID { get; set; }
 
-        public Teren Teren { get; set; }
+        public Teren? Teren { get; set; }
     }
 }

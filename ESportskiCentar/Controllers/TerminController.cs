@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ESportskiCentar.Data;
+using ESportskiCentar.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ESportskiCentar.Data;
-using ESportskiCentar.Models;
 
 namespace ESportskiCentar.Controllers
 {
+    [Authorize]
     public class TerminController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,146 +17,201 @@ namespace ESportskiCentar.Controllers
             _context = context;
         }
 
-        // GET: Termin
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? datumOd, DateTime? datumDo, Sport? sport)
         {
-            var applicationDbContext = _context.Termini.Include(t => t.Teren);
-            return View(await applicationDbContext.ToListAsync());
+            var termini = _context.Termini
+                .Include(t => t.Teren)
+                .AsQueryable();
+
+            // Ako je obični korisnik, vidi samo slobodne buduće termine
+            if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik"))
+            {
+                termini = termini.Where(t => !t.rezervisan && t.datum > DateTime.Now);
+            }
+
+            if (datumOd.HasValue)
+            {
+                termini = termini.Where(t => t.datum.Date >= datumOd.Value.Date);
+            }
+
+            if (datumDo.HasValue)
+            {
+                termini = termini.Where(t => t.datum.Date <= datumDo.Value.Date);
+            }
+
+            if (sport.HasValue)
+            {
+                termini = termini.Where(t => t.Teren.sport == sport.Value);
+            }
+
+            ViewBag.DatumOd = datumOd?.ToString("yyyy-MM-dd");
+            ViewBag.DatumDo = datumDo?.ToString("yyyy-MM-dd");
+            ViewBag.Sport = sport;
+
+            var lista = await termini
+                .OrderBy(t => t.datum)
+                .ToListAsync();
+
+            return View(lista);
         }
 
-        // GET: Termin/Details/5
+        // DETALJI TERMINA
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var termin = await _context.Termini
                 .Include(t => t.Teren)
-                .FirstOrDefaultAsync(m => m.id == id);
+                .FirstOrDefaultAsync(t => t.id == id);
+
             if (termin == null)
-            {
                 return NotFound();
-            }
 
             return View(termin);
         }
 
-        // GET: Termin/Create
+        // SAMO ADMIN I RADNIK MOGU DODATI TERMIN
+        [Authorize(Roles = "Administrator,Radnik")]
         public IActionResult Create()
         {
-            ViewData["terenID"] = new SelectList(_context.Tereni, "id", "id");
+            ViewData["terenID"] = new SelectList(_context.Tereni, "id", "naziv");
             return View();
         }
 
-        // POST: Termin/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,datum,cijena,rezervisan,terenID")] Termin termin)
+        [Authorize(Roles = "Administrator,Radnik")]
+        public async Task<IActionResult> Create([Bind("datum,cijena,terenID,rezervisan")] Termin termin)
         {
+            termin.rezervisan = false;
+
+            if (termin.datum <= DateTime.Now)
+            {
+                ModelState.AddModelError("datum", "Ne možete dodati termin u prošlosti.");
+            }
+
+            bool postojiTermin = await _context.Termini.AnyAsync(t =>
+                t.terenID == termin.terenID &&
+                t.datum == termin.datum);
+
+            if (postojiTermin)
+            {
+                ModelState.AddModelError("", "Termin za ovaj teren i vrijeme već postoji.");
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Add(termin);
+                _context.Termini.Add(termin);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["terenID"] = new SelectList(_context.Tereni, "id", "id", termin.terenID);
+
+            ViewData["terenID"] = new SelectList(_context.Tereni, "id", "naziv", termin.terenID);
             return View(termin);
         }
 
-        // GET: Termin/Edit/5
+        [Authorize(Roles = "Administrator,Radnik")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var termin = await _context.Termini.FindAsync(id);
+
             if (termin == null)
-            {
                 return NotFound();
+            if (termin.rezervisan)
+            {
+                TempData["Greska"] = "Ne možete uređivati termin koji je već rezervisan.";
+                return RedirectToAction(nameof(Index));
             }
-            ViewData["terenID"] = new SelectList(_context.Tereni, "id", "id", termin.terenID);
+
+            ViewData["terenID"] = new SelectList(_context.Tereni, "id", "naziv", termin.terenID);
             return View(termin);
         }
 
-        // POST: Termin/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,datum,cijena,rezervisan,terenID")] Termin termin)
+        [Authorize(Roles = "Administrator,Radnik")]
+        public async Task<IActionResult> Edit(int id, [Bind("id,datum,cijena,terenID")] Termin termin)
         {
             if (id != termin.id)
-            {
                 return NotFound();
+
+            var postojeciTermin = await _context.Termini.AsNoTracking()
+                .FirstOrDefaultAsync(t => t.id == id);
+
+            if (postojeciTermin == null)
+                return NotFound();
+
+            if (postojeciTermin.rezervisan)
+            {
+                TempData["Greska"] = "Ne možete uređivati termin koji je već rezervisan.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            termin.rezervisan = false;
+
+            if (termin.datum <= DateTime.Now)
+            {
+                ModelState.AddModelError("datum", "Ne možete postaviti termin u prošlosti.");
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(termin);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TerminExists(termin.id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(termin);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["terenID"] = new SelectList(_context.Tereni, "id", "id", termin.terenID);
+
+            ViewData["terenID"] = new SelectList(_context.Tereni, "id", "naziv", termin.terenID);
             return View(termin);
         }
 
-        // GET: Termin/Delete/5
+        [Authorize(Roles = "Administrator,Radnik")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var termin = await _context.Termini
                 .Include(t => t.Teren)
-                .FirstOrDefaultAsync(m => m.id == id);
+                .FirstOrDefaultAsync(t => t.id == id);
+
             if (termin == null)
-            {
                 return NotFound();
-            }
 
             return View(termin);
         }
 
-        // POST: Termin/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator,Radnik")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var termin = await _context.Termini.FindAsync(id);
-            if (termin != null)
+
+            if (termin == null)
+                return NotFound();
+
+            if (termin.rezervisan)
             {
-                _context.Termini.Remove(termin);
+                ModelState.AddModelError("", "Ne možete obrisati rezervisan termin.");
+
+                termin = await _context.Termini
+                    .Include(t => t.Teren)
+                    .FirstOrDefaultAsync(t => t.id == id);
+
+                return View("Delete", termin);
             }
 
+            _context.Termini.Remove(termin);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        private bool TerminExists(int id)
-        {
-            return _context.Termini.Any(e => e.id == id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

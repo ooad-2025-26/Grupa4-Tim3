@@ -23,6 +23,12 @@ namespace ESportskiCentar.Models
 
         public DateTime datumDo { get; set; }
 
+        [DisplayName("Ukupno rezervacija")]
+        public int ukupnoRezervacija { get; set; }
+
+       [DisplayName("Ukupna zarada")]
+        public double ukupnaZarada { get; set; }
+
         public Korisnik Korisnik { get; set; }
     }
 }

@@ -1,42 +1,41 @@
 ﻿@model ESportskiCentar.Models.Izvjestaj
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalji izvještaja";
 }
 
-<h1>Details</h1>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Izvještaj</h1>
+        <p>Pregled generisanog izvještaja.</p>
+    </div>
+</section>
 
-<div>
-    <h4>Izvjestaj</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.datumGenerisanja)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.datumGenerisanja)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.datumOd)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.datumOd)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.datumDo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.datumDo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Korisnik)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Korisnik.Id)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+<table class="table table-custom">
+    <tbody>
+        <tr>
+            <th>Korisnik</th>
+            <td>@Model.Korisnik?.Email</td>
+        </tr>
+        <tr>
+            <th>Od datuma</th>
+            <td>@Model.datumOd.ToString("dd.MM.yyyy")</td>
+        </tr>
+        <tr>
+            <th>Do datuma</th>
+            <td>@Model.datumDo.ToString("dd.MM.yyyy")</td>
+        </tr>
+        <tr>
+            <th>Datum generisanja</th>
+            <td>@Model.datumGenerisanja.ToString("dd.MM.yyyy HH:mm")</td>
+        </tr>
+        <tr>
+            <th>Ukupno rezervacija</th>
+            <td>@Model.ukupnoRezervacija</td>
+        </tr>
+        <tr>
+            <th>Ukupna zarada</th>
+            <td>@Model.ukupnaZarada KM</td>
+        </tr>
+    </tbody>
+</table>

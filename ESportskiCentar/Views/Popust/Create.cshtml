@@ -1,38 +1,36 @@
 ﻿@model ESportskiCentar.Models.Popust
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Novi popust";
 }
 
-<h1>Create</h1>
-
-<h4>Popust</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="potrebanBrojRezervacija" class="control-label"></label>
-                <input asp-for="potrebanBrojRezervacija" class="form-control" />
-                <span asp-validation-for="potrebanBrojRezervacija" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="procenat" class="control-label"></label>
-                <input asp-for="procenat" class="form-control" />
-                <span asp-validation-for="procenat" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Popusti</h1>
+        <p>Unesite ispravne vrijednosti za pravilo popusta.</p>
     </div>
-</div>
+</section>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<div class="page-card">
+    <h1>Popusti</h1>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="procenat" class="form-label">Popust (%)</label>
+            <input asp-for="procenat" class="form-control" />
+            <span asp-validation-for="procenat" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="potrebanBrojRezervacija" class="form-label">Broj rezervacija</label>
+            <input asp-for="potrebanBrojRezervacija" class="form-control" />
+            <span asp-validation-for="potrebanBrojRezervacija" class="text-danger"></span>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-main">Potvrdi</button>
+        </div>
+    </form>
+</div>

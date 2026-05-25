@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
 using ESportskiCentar.Data;
 using ESportskiCentar.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ESportskiCentar.Controllers
 {
+    [Authorize(Roles = RoleNames.Administrator + "," + RoleNames.Radnik)]
     public class IzvjestajController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,146 +17,74 @@ namespace ESportskiCentar.Controllers
             _context = context;
         }
 
-        // GET: Izvjestaj
-        public async Task<IActionResult> Index()
+        // GET: Izvjestaj/Create
+        public IActionResult Create()
         {
-            var applicationDbContext = _context.Izvjestaji.Include(i => i.Korisnik);
-            return View(await applicationDbContext.ToListAsync());
+            return View();
+        }
+
+        // POST: Izvjestaj/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(DateTime datumOd, DateTime datumDo)
+        {
+            if (datumDo < datumOd)
+            {
+                ModelState.AddModelError("", "Datum do ne može biti prije datuma od.");
+                return View();
+            }
+
+            var prijavljeniKorisnikId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var rezervacije = await _context.Rezervacije
+                .Include(r => r.Termin)
+                .ThenInclude(t => t.Teren)
+                .Where(r => r.vrijemeRezervacije.Date >= datumOd.Date &&
+                            r.vrijemeRezervacije.Date <= datumDo.Date)
+                .ToListAsync();
+
+            // POPRAVKA: Sve se automatski popunjava.
+            var izvjestaj = new Izvjestaj
+            {
+                datumOd = datumOd,
+                datumDo = datumDo,
+                datumGenerisanja = DateTime.Now,
+                ukupnoRezervacija = rezervacije.Count,
+                ukupnaZarada = rezervacije.Sum(r => r.konacnaCijena),
+                korisnikID = prijavljeniKorisnikId
+            };
+
+            _context.Izvjestaji.Add(izvjestaj);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = izvjestaj.id });
         }
 
         // GET: Izvjestaj/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var izvjestaj = await _context.Izvjestaji
                 .Include(i => i.Korisnik)
-                .FirstOrDefaultAsync(m => m.id == id);
+                .FirstOrDefaultAsync(i => i.id == id);
+
             if (izvjestaj == null)
-            {
                 return NotFound();
-            }
 
             return View(izvjestaj);
         }
 
-        // GET: Izvjestaj/Create
-        public IActionResult Create()
+        // GET: Izvjestaj/Index
+        public async Task<IActionResult> Index()
         {
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici.ToList(), "Id", "ime");
-            return View();
-        }
-
-        // POST: Izvjestaj/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,datumGenerisanja,korisnikID,datumOd,datumDo")] Izvjestaj izvjestaj)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(izvjestaj);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici.ToList(), "id", "id", izvjestaj.korisnikID);
-            return View(izvjestaj);
-        }
-
-        // GET: Izvjestaj/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var izvjestaj = await _context.Izvjestaji.FindAsync(id);
-            if (izvjestaj == null)
-            {
-                return NotFound();
-            }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici.ToList(), "Id", "ime", izvjestaj.korisnikID);
-            return View(izvjestaj);
-        }
-
-        // POST: Izvjestaj/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,datumGenerisanja,korisnikID,datumOd,datumDo")] Izvjestaj izvjestaj)
-        {
-            if (id != izvjestaj.id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(izvjestaj);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!IzvjestajExists(izvjestaj.id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici.ToList(), "Id", "ime", izvjestaj.korisnikID);
-            return View(izvjestaj);
-        }
-
-        // GET: Izvjestaj/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var izvjestaj = await _context.Izvjestaji
+            var izvjestaji = await _context.Izvjestaji
                 .Include(i => i.Korisnik)
-                .FirstOrDefaultAsync(m => m.id == id);
-            if (izvjestaj == null)
-            {
-                return NotFound();
-            }
+                .OrderByDescending(i => i.datumGenerisanja)
+                .ToListAsync();
 
-            return View(izvjestaj);
-        }
-
-        // POST: Izvjestaj/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var izvjestaj = await _context.Izvjestaji.FindAsync(id);
-            if (izvjestaj != null)
-            {
-                _context.Izvjestaji.Remove(izvjestaj);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool IzvjestajExists(int id)
-        {
-            return _context.Izvjestaji.Any(e => e.id == id);
+            return View(izvjestaji);
         }
     }
 }

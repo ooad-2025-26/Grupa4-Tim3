@@ -1,51 +1,130 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ESportskiCentar</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - E-Sportski Centar</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ESportskiCentar.styles.css" asp-append-version="true" />
 </head>
+
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ESportskiCentar</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-sm navbar-light border-bottom">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    ⚡ E - SPORTSKI CENTAR
+                    <small class="d-block" style="font-size:10px;">PAMETNA REZERVACIJA TERMINA</small>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav align-items-center gap-2">
+
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="btn-main" asp-area="Identity" asp-page="/Account/Login">Prijava</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn-main" asp-area="Identity" asp-page="/Account/Register">Registracija</a>
+                            </li>
+                        }
+                        else if (User.IsInRole("Administrator") || User.IsInRole("Radnik"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Termin" asp-action="Create">Dodaj termin</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Termin" asp-action="Index">Obriši termin</a>
+                            </li>
+
+                            @if (User.IsInRole("Administrator"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                           asp-controller="Popust"
+                                           asp-action="Index">
+                                        Popusti
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                           asp-controller="Teren"
+                                           asp-action="Create">
+                                        Dodaj teren
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Izvjestaj" asp-action="Index">Izvještaji</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form asp-area="Identity"
+                                      asp-page="/Account/Logout"
+                                      asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                                      method="post">
+
+                                    <button type="submit" class="btn btn-link nav-link">
+                                        Odjava
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Termin" asp-action="Index">Rezerviši</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Rezervacija" asp-action="Index">Moje rezervacije</a>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-area="Identity"
+                                      asp-page="/Account/Logout"
+                                      asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                                      method="post">
+
+                                    <button type="submit" class="btn btn-link nav-link">
+                                        Odjava
+                                    </button>
+                                </form>
+                            </li>
+                        }
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <span style="font-size:28px;">👤</span>
+                            </li>
+                        }
+
                     </ul>
-                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ESportskiCentar - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        © 2026 E-Sportski Centar | Sva prava zadržana
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

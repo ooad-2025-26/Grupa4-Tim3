@@ -1,53 +1,63 @@
 ﻿@model IEnumerable<ESportskiCentar.Models.Izvjestaj>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Izvještaji";
 }
 
-<h1>Index</h1>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Izvještaji</h1>
+        <p>Pregled svih generisanih izvještaja.</p>
+    </div>
+</section>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.datumGenerisanja)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.datumOd)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.datumDo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Korisnik)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.datumGenerisanja)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.datumOd)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.datumDo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Korisnik.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
-            </td>
-        </tr>
+<div class="text-center mt-4">
+    <a asp-action="Create" class="btn btn-main">
+        Novi izvještaj
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="page-card text-center">
+        <h1>Nema izvještaja</h1>
+        <p>Još uvijek nije generisan nijedan izvještaj.</p>
+    </div>
 }
-    </tbody>
-</table>
+else
+{
+    <table class="table table-custom">
+        <thead>
+            <tr>
+                <th>Korisnik</th>
+                <th>Od datuma</th>
+                <th>Do datuma</th>
+                <th>Datum generisanja</th>
+                <th>Ukupno rezervacija</th>
+                <th>Ukupna zarada</th>
+                <th>Akcije</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Korisnik?.Email</td>
+                    <td>@item.datumOd.ToString("dd.MM.yyyy")</td>
+                    <td>@item.datumDo.ToString("dd.MM.yyyy")</td>
+                    <td>@item.datumGenerisanja.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@item.ukupnoRezervacija</td>
+                    <td>@item.ukupnaZarada KM</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.id">Detalji</a>
+                        <span> | </span>
+                        <a asp-action="Edit" asp-route-id="@item.id">Uredi</a>
+                        <span> | </span>
+                        <a asp-action="Delete" asp-route-id="@item.id">Obriši</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

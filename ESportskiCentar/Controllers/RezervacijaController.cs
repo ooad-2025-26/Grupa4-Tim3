@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using ESportskiCentar.Data;
+using ESportskiCentar.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ESportskiCentar.Data;
-using ESportskiCentar.Models;
 
 namespace ESportskiCentar.Controllers
 {
+    [Authorize]
     public class RezervacijaController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,152 +18,154 @@ namespace ESportskiCentar.Controllers
             _context = context;
         }
 
-        // GET: Rezervacija
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Rezervacije.Include(r => r.Korisnik).Include(r => r.Termin);
-            return View(await applicationDbContext.ToListAsync());
-        }
+            var korisnikId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        // GET: Rezervacija/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var rezervacija = await _context.Rezervacije
+            var rezervacije = _context.Rezervacije
                 .Include(r => r.Korisnik)
                 .Include(r => r.Termin)
-                .FirstOrDefaultAsync(m => m.id == id);
-            if (rezervacija == null)
+                .ThenInclude(t => t.Teren)
+                .AsQueryable();
+
+            // Obični korisnik vidi samo svoje rezervacije.
+            if (User.IsInRole(RoleNames.Korisnik))
             {
-                return NotFound();
+                rezervacije = rezervacije.Where(r => r.korisnikID == korisnikId);
             }
+
+            return View(await rezervacije.ToListAsync());
+        }
+
+        public async Task<IActionResult> Create(int? terminId)
+        {
+            if (terminId == null)
+                return RedirectToAction("Index", "Termin");
+
+            var termin = await _context.Termini
+                .Include(t => t.Teren)
+                .FirstOrDefaultAsync(t => t.id == terminId && !t.rezervisan);
+
+            if (termin == null)
+                return NotFound();
+
+            var rezervacija = new Rezervacija
+            {
+                terminID = termin.id,
+                Termin = termin
+            };
 
             return View(rezervacija);
         }
 
-        // GET: Rezervacija/Create
-        public IActionResult Create()
-        {
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici, "id", "id");
-            ViewData["terminID"] = new SelectList(_context.Termini, "id", "id");
-            return View();
-        }
-
-        // POST: Rezervacija/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,status,terminID,korisnikID,vrijemeRezervacije,primjenjenPopust,konacnaCijena")] Rezervacija rezervacija)
+        public async Task<IActionResult> Create([Bind("terminID")] Rezervacija rezervacija)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(rezervacija);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici, "id", "id", rezervacija.korisnikID);
-            ViewData["terminID"] = new SelectList(_context.Termini, "id", "id", rezervacija.terminID);
-            return View(rezervacija);
-        }
+            var korisnikId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        // GET: Rezervacija/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
+            var termin = await _context.Termini
+                .Include(t => t.Teren)
+                .FirstOrDefaultAsync(t => t.id == rezervacija.terminID);
+
+            if (termin == null) return NotFound();
+
+            if (termin.rezervisan)
             {
-                return NotFound();
+                ModelState.AddModelError("", "Termin je u međuvremenu zauzet.");
+                return View(rezervacija);
             }
 
-            var rezervacija = await _context.Rezervacije.FindAsync(id);
-            if (rezervacija == null)
-            {
-                return NotFound();
-            }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici, "id", "id", rezervacija.korisnikID);
-            ViewData["terminID"] = new SelectList(_context.Termini, "id", "id", rezervacija.terminID);
-            return View(rezervacija);
-        }
+            double cijena = termin.cijena;
+            bool imaPopust = false;
 
-        // POST: Rezervacija/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,status,terminID,korisnikID,vrijemeRezervacije,primjenjenPopust,konacnaCijena")] Rezervacija rezervacija)
-        {
-            if (id != rezervacija.id)
-            {
-                return NotFound();
-            }
+            // Automatska dodjela popusta.
+            var popust = await _context.Popusti.FirstOrDefaultAsync();
 
-            if (ModelState.IsValid)
+            if (popust != null)
             {
-                try
+                int brojRezervacija = await _context.Rezervacije.CountAsync(r =>
+                                                                             r.korisnikID == korisnikId);
+
+                if (brojRezervacija >= popust.potrebanBrojRezervacija)
                 {
-                    _context.Update(rezervacija);
-                    await _context.SaveChangesAsync();
+                    cijena = cijena - (cijena * popust.procenat / 100);
+                    imaPopust = true;
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RezervacijaExists(rezervacija.id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["korisnikID"] = new SelectList(_context.Korisnici, "id", "id", rezervacija.korisnikID);
-            ViewData["terminID"] = new SelectList(_context.Termini, "id", "id", rezervacija.terminID);
-            return View(rezervacija);
+
+            rezervacija.korisnikID = korisnikId;
+            rezervacija.status = Status.NA_CEKANJU;
+            rezervacija.vrijemeRezervacije = DateTime.Now;
+            rezervacija.primjenjenPopust = imaPopust;
+            rezervacija.konacnaCijena = cijena;
+
+            termin.rezervisan = true;
+
+            _context.Rezervacije.Add(rezervacija);
+            await _context.SaveChangesAsync();
+
+            // Kreira se podsjetnik 24h prije termina.
+            var notifikacija = new Notifikacija
+            {
+                rezervacijaID = rezervacija.id,
+                poslana = false,
+                vrijemeSlanja = termin.datum.AddHours(-24)
+            };
+
+            _context.Notifikacije.Add(notifikacija);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Rezervacija/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+
+            var korisnikId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var rezervacija = await _context.Rezervacije
-                .Include(r => r.Korisnik)
                 .Include(r => r.Termin)
-                .FirstOrDefaultAsync(m => m.id == id);
-            if (rezervacija == null)
-            {
-                return NotFound();
-            }
+                .ThenInclude(t => t.Teren)
+                .FirstOrDefaultAsync(r => r.id == id);
+
+            if (rezervacija == null) return NotFound();
+
+            if (User.IsInRole(RoleNames.Korisnik) && rezervacija.korisnikID != korisnikId)
+                return Forbid();
 
             return View(rezervacija);
         }
 
-        // POST: Rezervacija/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var rezervacija = await _context.Rezervacije.FindAsync(id);
-            if (rezervacija != null)
+            var rezervacija = await _context.Rezervacije
+                .Include(r => r.Termin)
+                .FirstOrDefaultAsync(r => r.id == id);
+
+            if (rezervacija == null) return NotFound();
+
+            //Ne dozvoljavamo otkazivanje ako je manje od 2h do termina.
+            if (rezervacija.Termin.datum <= DateTime.Now.AddHours(2))
             {
-                _context.Rezervacije.Remove(rezervacija);
+                ModelState.AddModelError("", "Otkazivanje više nije moguće.");
+                return View("Delete", rezervacija);
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var notifikacije = _context.Notifikacije
+                .Where(n => n.rezervacijaID == rezervacija.id);
 
-        private bool RezervacijaExists(int id)
-        {
-            return _context.Rezervacije.Any(e => e.id == id);
+            _context.Notifikacije.RemoveRange(notifikacije);
+
+            rezervacija.Termin.rezervisan = false;
+
+            _context.Rezervacije.Remove(rezervacija);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

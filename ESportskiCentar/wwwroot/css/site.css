@@ -1,31 +1,207 @@
+:root {
+    --blue: #07376f;
+    --green: #9bd51b;
+    --light-gray: #eeeeee;
+    --white: #ffffff;
+}
+
 html {
-  font-size: 14px;
+    font-size: 14px;
+    min-height: 100%;
+    position: relative;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    margin-bottom: 60px;
+    background-color: var(--light-gray);
+    font-family: Arial, sans-serif;
+    color: var(--blue);
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.navbar {
+    background: white !important;
+    min-height: 70px;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.navbar-brand {
+    font-weight: 800;
+    color: var(--blue) !important;
+}
+
+.nav-link {
+    color: var(--blue) !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+    .nav-link:hover {
+        color: var(--green) !important;
+    }
+
+.hero {
+    background: linear-gradient(110deg, var(--blue) 0%, var(--blue) 58%, var(--green) 58%, var(--green) 100%);
+    min-height: 330px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.hero-content {
+    width: 80%;
+    margin: auto;
+}
+
+.hero h1 {
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.hero p {
+    margin-top: 20px;
+    font-weight: 600;
+}
+
+.btn-main {
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    color: white !important;
+    border: none;
+    border-radius: 18px;
+    padding: 10px 25px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+    .btn-main:hover {
+        opacity: 0.9;
+    }
+
+.section-title {
+    text-align: center;
+    color: var(--green);
+    font-style: italic;
+    margin: 30px 0;
+    font-weight: 700;
+}
+
+.info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    min-height: 190px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+    .info-card h3 {
+        color: var(--blue);
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    .info-card p {
+        color: var(--green);
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+.form-panel {
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    border-radius: 0 0 18px 18px;
+    padding: 25px;
+    max-width: 760px;
+    margin: -40px auto 30px auto;
+    color: white;
+}
+
+    .form-panel label {
+        font-weight: 700;
+    }
+
+.form-control,
+.form-select {
+    border-radius: 0;
+    border: none;
+    min-height: 42px;
+}
+
+.page-card {
+    background: white;
+    border-radius: 16px;
+    padding: 35px;
+    max-width: 650px;
+    margin: 40px auto;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+    .page-card h1,
+    .page-card h2 {
+        color: var(--blue);
+        font-weight: 900;
+        text-align: center;
+    }
+
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 110px);
+    gap: 18px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.time-btn {
+    border: none;
+    border-radius: 14px;
+    padding: 12px;
+    font-weight: 800;
+    text-align: center;
+    color: var(--blue);
+}
+
+.time-free {
+    background: var(--green);
+}
+
+.time-busy {
+    background: var(--blue);
+    color: white;
+}
+
+.table-custom {
+    background: white;
+    width: 90%;
+    margin: 30px auto;
+}
+
+    .table-custom th {
+        background: var(--blue);
+        color: white;
+    }
+
+    .table-custom td,
+    .table-custom th {
+        padding: 18px;
+        text-align: center;
+    }
+
+.footer {
+    background: white;
+    color: var(--green) !important;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--green);
 }
