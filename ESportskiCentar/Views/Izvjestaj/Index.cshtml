@@ -50,11 +50,9 @@ else
                     <td>@item.ukupnoRezervacija</td>
                     <td>@item.ukupnaZarada KM</td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.id">Detalji</a>
+                        <a asp-action="Details" class="btn btn-details btn-sm" asp-route-id="@item.id">Detalji</a>
                         <span> | </span>
-                        <a asp-action="Edit" asp-route-id="@item.id">Uredi</a>
-                        <span> | </span>
-                        <a asp-action="Delete" asp-route-id="@item.id">Obriši</a>
+                        <a asp-action="Delete" class="btn btn-danger-custom" asp-route-id="@item.id">Obriši</a>
                     </td>
                 </tr>
             }

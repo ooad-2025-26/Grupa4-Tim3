@@ -1,157 +1,98 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ESportskiCentar.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using ESportskiCentar.Data;
-using ESportskiCentar.Models;
 
 namespace ESportskiCentar.Controllers
 {
+    [Authorize(Roles = RoleNames.Administrator)]
     public class KorisnikController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly UserManager<Korisnik> _userManager;
 
-        public KorisnikController(ApplicationDbContext context)
+        public KorisnikController(UserManager<Korisnik> userManager)
         {
-            _context = context;
+            _userManager = userManager;
         }
 
         // GET: Korisnik
-        public async Task<IActionResult> Index()
+        // Samo administrator vidi listu korisnika.
+        public IActionResult Index(string pretraga)
         {
-            return View(await _context.Korisnici.ToListAsync());
+            var korisnici = _userManager.Users.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(pretraga))
+            {
+                pretraga = pretraga.ToLower();
+
+                korisnici = korisnici.Where(k =>
+                    (k.ime + " " + k.prezime).ToLower().Contains(pretraga) ||
+                    k.ime.ToLower().Contains(pretraga) ||
+                    k.prezime.ToLower().Contains(pretraga));
+            }
+
+            ViewBag.Pretraga = pretraga;
+
+            return View(korisnici.ToList());
         }
 
         // GET: Korisnik/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var korisnik = await _context.Korisnici
-                .FirstOrDefaultAsync(m => int.Parse(m.Id) == id);
+            var korisnik = await _userManager.FindByIdAsync(id);
+
             if (korisnik == null)
-            {
                 return NotFound();
-            }
+
+            ViewBag.Role = await _userManager.GetRolesAsync(korisnik);
 
             return View(korisnik);
         }
 
-        // GET: Korisnik/Create
-        public IActionResult Create()
+        // GET: Korisnik/PromijeniRolu/5
+        public async Task<IActionResult> PromijeniRolu(string id)
         {
-            return View();
+            if (id == null)
+                return NotFound();
+
+            var korisnik = await _userManager.FindByIdAsync(id);
+
+            if (korisnik == null)
+                return NotFound();
+
+            var trenutneRole = await _userManager.GetRolesAsync(korisnik);
+
+            ViewBag.TrenutnaRola = trenutneRole.FirstOrDefault() ?? "Bez role";
+
+            return View(korisnik);
         }
 
-        // POST: Korisnik/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Korisnik/PromijeniRolu
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,ime,prezime,lozinka,korisnickoIme,email")] Korisnik korisnik)
+        public async Task<IActionResult> PromijeniRolu(string id, string novaRola)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(korisnik);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(korisnik);
-        }
-
-        // GET: Korisnik/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
+            if (id == null || string.IsNullOrEmpty(novaRola))
                 return NotFound();
-            }
 
-            var korisnik = await _context.Korisnici.FindAsync(id);
+            var korisnik = await _userManager.FindByIdAsync(id);
+
             if (korisnik == null)
-            {
                 return NotFound();
-            }
-            return View(korisnik);
-        }
 
-        // POST: Korisnik/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,ime,prezime,lozinka,korisnickoIme,email")] Korisnik korisnik)
-        {
-            if (id !=int.Parse( korisnik.Id))
+            var trenutneRole = await _userManager.GetRolesAsync(korisnik);
+
+            if (trenutneRole.Any())
             {
-                return NotFound();
+                await _userManager.RemoveFromRolesAsync(korisnik, trenutneRole);
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(korisnik);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!KorisnikExists(int.Parse(korisnik.Id)))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(korisnik);
-        }
+            await _userManager.AddToRoleAsync(korisnik, novaRola);
 
-        // GET: Korisnik/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var korisnik = await _context.Korisnici
-                .FirstOrDefaultAsync(m =>int.Parse( m.Id) == id);
-            if (korisnik == null)
-            {
-                return NotFound();
-            }
-
-            return View(korisnik);
-        }
-
-        // POST: Korisnik/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var korisnik = await _context.Korisnici.FindAsync(id);
-            if (korisnik != null)
-            {
-                _context.Korisnici.Remove(korisnik);
-            }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool KorisnikExists(int id)
-        {
-            return _context.Korisnici.Any(e => int.Parse(e.Id) == id);
         }
     }
 }

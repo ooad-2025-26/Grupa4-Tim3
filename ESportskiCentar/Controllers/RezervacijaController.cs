@@ -18,7 +18,7 @@ namespace ESportskiCentar.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? datumOd, DateTime? datumDo, Sport? sport, Status? status)
         {
             var korisnikId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -29,12 +29,39 @@ namespace ESportskiCentar.Controllers
                 .AsQueryable();
 
             // Obični korisnik vidi samo svoje rezervacije.
-            if (User.IsInRole(RoleNames.Korisnik))
+            if (!User.IsInRole(RoleNames.Administrator) && !User.IsInRole(RoleNames.Radnik))
             {
                 rezervacije = rezervacije.Where(r => r.korisnikID == korisnikId);
             }
 
-            return View(await rezervacije.ToListAsync());
+            if (datumOd.HasValue)
+            {
+                rezervacije = rezervacije.Where(r => r.Termin.datum.Date >= datumOd.Value.Date);
+            }
+
+            if (datumDo.HasValue)
+            {
+                rezervacije = rezervacije.Where(r => r.Termin.datum.Date <= datumDo.Value.Date);
+            }
+
+            if (sport.HasValue)
+            {
+                rezervacije = rezervacije.Where(r => r.Termin.Teren.sport == sport.Value);
+            }
+
+            if (status.HasValue)
+            {
+                rezervacije = rezervacije.Where(r => r.status == status.Value);
+            }
+
+            ViewBag.DatumOd = datumOd?.ToString("yyyy-MM-dd");
+            ViewBag.DatumDo = datumDo?.ToString("yyyy-MM-dd");
+            ViewBag.Sport = sport;
+            ViewBag.Status = status;
+
+            return View(await rezervacije
+                .OrderByDescending(r => r.vrijemeRezervacije)
+                .ToListAsync());
         }
 
         public async Task<IActionResult> Create(int? terminId)
@@ -79,23 +106,28 @@ namespace ESportskiCentar.Controllers
             double cijena = termin.cijena;
             bool imaPopust = false;
 
-            // Automatska dodjela popusta.
-            var popust = await _context.Popusti.FirstOrDefaultAsync();
+            // Broj rezervacija korisnika u trenutnom mjesecu.
+            int brojRezervacija = await _context.Rezervacije
+                .CountAsync(r =>
+                    r.korisnikID == korisnikId &&
+                    r.vrijemeRezervacije.Month == DateTime.Now.Month &&
+                    r.vrijemeRezervacije.Year == DateTime.Now.Year);
+
+            // Uzima najveći odgovarajući popust.
+            var popust = await _context.Popusti
+                .Where(p => brojRezervacija >= p.potrebanBrojRezervacija)
+                .OrderByDescending(p => p.procenat)
+                .FirstOrDefaultAsync();
 
             if (popust != null)
             {
-                int brojRezervacija = await _context.Rezervacije.CountAsync(r =>
-                                                                             r.korisnikID == korisnikId);
-
-                if (brojRezervacija >= popust.potrebanBrojRezervacija)
-                {
-                    cijena = cijena - (cijena * popust.procenat / 100);
-                    imaPopust = true;
-                }
+                cijena = cijena - (cijena * popust.procenat / 100);
+                imaPopust = true;
             }
 
+
             rezervacija.korisnikID = korisnikId;
-            rezervacija.status = Status.NA_CEKANJU;
+            rezervacija.status = Status.POTVRDENA;
             rezervacija.vrijemeRezervacije = DateTime.Now;
             rezervacija.primjenjenPopust = imaPopust;
             rezervacija.konacnaCijena = cijena;

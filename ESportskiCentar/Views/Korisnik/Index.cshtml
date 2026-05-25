@@ -1,59 +1,85 @@
-﻿@model IEnumerable<ESportskiCentar.Models.Korisnik>
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<ESportskiCentar.Models.Korisnik>
+
+@inject UserManager<Korisnik> UserManager
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Korisnici";
 }
 
-<h1>Index</h1>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Korisnici</h1>
+        <p>Pregled svih korisnika sistema.</p>
+    </div>
+</section>
+<div class="form-panel">
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+    <form asp-action="Index" method="get">
+
+        <div class="row align-items-end">
+
+            <div class="col-md-10">
+
+                <label>Pretraga korisnika</label>
+
+                <input type="text"
+                       name="pretraga"
+                       value="@ViewBag.Pretraga"
+                       class="form-control"
+                       placeholder="Unesite ime ili prezime..." />
+
+            </div>
+
+            <div class="col-md-2">
+
+                <button type="submit"
+                        class="btn btn-main w-100">
+                    Pretraži
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<table class="table table-custom">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.prezime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PasswordHash)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th></th>
+            <th>Ime</th>
+            <th>Prezime</th>
+            <th>Email</th>
+            <th>Rola</th>
+            <th>Akcije</th>
         </tr>
     </thead>
+
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.prezime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PasswordHash)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+
+        @foreach (var korisnik in Model)
+        {
+            var role = (await UserManager.GetRolesAsync(korisnik)).FirstOrDefault();
+
+            <tr>
+
+                <td>@korisnik.ime</td>
+                <td>@korisnik.prezime</td>
+                <td>@korisnik.Email</td>
+                <td>@role</td>
+
+                <td>
+                    <a asp-action="PromijeniRolu"
+                           asp-route-id="@korisnik.Id"
+                           class="btn btn-sm btn-main">
+                        Promijeni rolu
+                    </a>
+                </td>
+
+            </tr>
+        }
+
     </tbody>
 </table>

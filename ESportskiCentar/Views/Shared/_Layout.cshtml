@@ -38,10 +38,7 @@
                         else if (User.IsInRole("Administrator") || User.IsInRole("Radnik"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Termin" asp-action="Create">Dodaj termin</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Termin" asp-action="Index">Obriši termin</a>
+                                <a class="nav-link" asp-controller="Termin" asp-action="Index">Termini</a>
                             </li>
 
                             @if (User.IsInRole("Administrator"))
@@ -57,14 +54,29 @@
                                 <li class="nav-item">
                                     <a class="nav-link"
                                            asp-controller="Teren"
-                                           asp-action="Create">
-                                        Dodaj teren
+                                           asp-action="Index">
+                                        Tereni
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                           asp-controller="Korisnik"
+                                           asp-action="Index">
+                                        Korisnici
                                     </a>
                                 </li>
                             }
 
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Izvjestaj" asp-action="Index">Izvještaji</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                       asp-controller="Rezervacija"
+                                       asp-action="Index">
+                                    Rezervacije
+                                </a>
                             </li>
 
                             <li class="nav-item">

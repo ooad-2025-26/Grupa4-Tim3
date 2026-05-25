@@ -30,8 +30,8 @@
                 <td>@item.potrebanBrojRezervacija</td>
                 <td>@item.procenat</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.id">Uredi</a> |
-                    <a asp-action="Delete" asp-route-id="@item.id">Obriši</a>
+                    <a asp-action="Edit" class="btn btn-edit btn-sm" asp-route-id="@item.id">Uredi</a> |
+                    <a asp-action="Delete" class="btn btn-danger-custom" asp-route-id="@item.id">Obriši</a>
                 </td>
             </tr>
         }

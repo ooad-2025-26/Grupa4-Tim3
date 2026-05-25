@@ -12,26 +12,72 @@
 </section>
 
 <div class="page-card">
+
     <h1>Detalji rezervacije</h1>
 
-    <p><strong>Sport:</strong> @Model.Termin?.Teren?.sport</p>
-    <p><strong>Teren:</strong> @Model.Termin?.Teren?.naziv</p>
-    <p><strong>Vrijeme:</strong> @Model.Termin?.datum.ToString("dd.MM.yyyy HH:mm")</p>
-    <p><strong>Cijena:</strong> @Model.konacnaCijena KM</p>
+    <p>
+        <strong>Sport:</strong>
+        @Model.Termin?.Teren?.sport
+    </p>
+
+    <p>
+        <strong>Teren:</strong>
+        @Model.Termin?.Teren?.naziv
+    </p>
+
+    <p>
+        <strong>Vrijeme:</strong>
+        @Model.Termin?.datum.ToString("dd.MM.yyyy HH:mm")
+    </p>
+
+    <p>
+        <strong>Cijena termina:</strong>
+        @Model.Termin?.cijena KM
+    </p>
+
+    <p>
+        <strong>Popust:</strong>
+
+        @if (Model.primjenjenPopust && Model.Termin != null && Model.Termin.cijena > 0)
+        {
+            @(Math.Round(
+                ((Model.Termin.cijena - Model.konacnaCijena)
+                / Model.Termin.cijena) * 100, 0))
+            <text>%</text>
+        }
+        else
+        {
+            <text>0%</text>
+        }
+    </p>
+
+    <p>
+        <strong>Ukupna cijena:</strong>
+        @Model.konacnaCijena KM
+    </p>
 
     <p class="text-success fw-bold">
         Rezervaciju je moguće otkazati najkasnije 24 sata prije termina.
     </p>
 
     <form asp-action="Delete">
+
         <input type="hidden" asp-for="id" />
+
         <div class="text-center">
-            <button type="submit" class="btn btn-main">Otkaži</button>
+
+            <button type="submit" class="btn btn-danger-custom">
+                Otkaži
+            </button>
+
             <a asp-controller="Rezervacija"
                    asp-action="Index"
-                   class="btn btn-secondary ms-2">
+                   class="btn btn-secondary-custom ms-2">
                 Nazad
             </a>
+
         </div>
+
     </form>
+
 </div>

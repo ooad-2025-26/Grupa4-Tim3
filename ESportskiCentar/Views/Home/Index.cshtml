@@ -18,22 +18,25 @@
                     Pronađi slobodne termine za sport koji voliš i
                     rezerviši ih u par klikova.
                 </p>
+                @if (!(User.IsInRole("Administrator") || User.IsInRole("Radnik")))
+                {
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-controller="Termin"
+                        asp-action="Index"
+                        class="btn btn-main mt-3">
+                            Rezerviši odmah
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="Identity"
+                        asp-page="/Account/Login"
+                        class="btn btn-main mt-3">
+                            Rezerviši odmah
+                        </a>
+                    }
 
-                @if (User.Identity.IsAuthenticated)
-                {
-                    <a asp-controller="Termin"
-                           asp-action="Index"
-                           class="btn btn-main mt-3">
-                        Rezerviši odmah
-                    </a>
-                }
-                else
-                {
-                    <a asp-area="Identity"
-                           asp-page="/Account/Login"
-                           class="btn btn-main mt-3">
-                        Rezerviši odmah
-                    </a>
                 }
             </div>
 

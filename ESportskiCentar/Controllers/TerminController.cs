@@ -68,6 +68,15 @@ namespace ESportskiCentar.Controllers
             if (termin == null)
                 return NotFound();
 
+            if (User.IsInRole("Administrator") || User.IsInRole("Radnik"))
+            {
+                var rezervacija = await _context.Rezervacije
+                    .Include(r => r.Korisnik)
+                    .FirstOrDefaultAsync(r => r.terminID == termin.id);
+
+                ViewBag.EmailKorisnika = rezervacija?.Korisnik?.Email;
+            }
+
             return View(termin);
         }
 

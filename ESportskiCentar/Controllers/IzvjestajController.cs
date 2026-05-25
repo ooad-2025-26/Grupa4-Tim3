@@ -60,7 +60,7 @@ namespace ESportskiCentar.Controllers
             return RedirectToAction(nameof(Details), new { id = izvjestaj.id });
         }
 
-        // GET: Izvjestaj/Details/5
+        // GET: Izvjestaj/Details
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -85,6 +85,35 @@ namespace ESportskiCentar.Controllers
                 .ToListAsync();
 
             return View(izvjestaji);
+        }
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var izvjestaj = await _context.Izvjestaji
+                .Include(i => i.Korisnik)
+                .FirstOrDefaultAsync(i => i.id == id);
+
+            if (izvjestaj == null)
+                return NotFound();
+
+            return View(izvjestaj);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var izvjestaj = await _context.Izvjestaji.FindAsync(id);
+
+            if (izvjestaj != null)
+            {
+                _context.Izvjestaji.Remove(izvjestaj);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
