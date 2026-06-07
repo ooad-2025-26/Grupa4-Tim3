@@ -29,7 +29,7 @@ namespace ESportskiCentar.Controllers
                 .AsQueryable();
 
             // Obični korisnik vidi samo svoje rezervacije.
-            if (!User.IsInRole(RoleNames.Administrator) && !User.IsInRole(RoleNames.Radnik))
+            if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik"))
             {
                 rezervacije = rezervacije.Where(r => r.korisnikID == korisnikId);
             }
@@ -164,7 +164,7 @@ namespace ESportskiCentar.Controllers
 
             if (rezervacija == null) return NotFound();
 
-            if (User.IsInRole(RoleNames.Korisnik) && rezervacija.korisnikID != korisnikId)
+            if (User.IsInRole("Korisnik") && rezervacija.korisnikID != korisnikId)
                 return Forbid();
 
             return View(rezervacija);

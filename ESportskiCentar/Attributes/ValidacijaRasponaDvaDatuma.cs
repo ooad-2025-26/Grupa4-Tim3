@@ -10,6 +10,5 @@ namespace ESportskiCentar.Attributes
             var model = (Izvjestaj)validationContext.ObjectInstance;
             return model.datumOd <= model.datumDo ? ValidationResult.Success : new ValidationResult("Datum kraja ne može biti prije datuma početka!");
         }
-
     }
 }

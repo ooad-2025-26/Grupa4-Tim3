@@ -14,10 +14,15 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-light border-bottom">
             <div class="container-fluid px-4">
-                <img src="~/images/logo.png" width="75" />
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    E - SPORTSKI CENTAR
-                    <small class="d-block" style="font-size:10px;">PAMETNA REZERVACIJA TERMINA</small>
+                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.png" width="75" class="me-2" alt="Logo" />
+
+                    <div>
+                        E - SPORTSKI CENTAR
+                        <small class="d-block text-muted" style="font-size:10px; line-height: 1.2;">
+                            PAMETNA REZERVACIJA TERMINA
+                        </small>
+                    </div>
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">

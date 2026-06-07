@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ESportskiCentar.Controllers
 {
-    [Authorize(Roles = RoleNames.Administrator)]
+    [Authorize(Roles = "Administrator")]
     public class KorisnikController : Controller
     {
         private readonly UserManager<Korisnik> _userManager;

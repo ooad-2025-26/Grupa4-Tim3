@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ESportskiCentar.Controllers
 {
-    [Authorize(Roles = RoleNames.Administrator + "," + RoleNames.Radnik)]
+    [Authorize(Roles = "Administrator,Radnik")]
     public class IzvjestajController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -115,7 +115,7 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, RoleNames.Korisnik);
+                    await _userManager.AddToRoleAsync(user, "Korisnik");
                     _logger.LogInformation("Korisnik je uspješno kreirao novi nalog.");
 
                     await _signInManager.SignInAsync(user, isPersistent: false);

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ESportskiCentar.Controllers
 {
-    [Authorize(Roles = RoleNames.Administrator)]
+    [Authorize(Roles = "Administrator")]
     public class TerenController : Controller
     {
         private readonly ApplicationDbContext _context;

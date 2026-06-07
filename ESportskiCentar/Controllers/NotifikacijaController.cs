@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ESportskiCentar.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrator,Radnik")]
     public class NotifikacijaController : Controller
     {
         private readonly ApplicationDbContext _context;

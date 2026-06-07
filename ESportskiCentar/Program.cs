@@ -46,9 +46,9 @@ using (var scope = app.Services.CreateScope())
     // ROLE
     string[] roles =
     {
-        RoleNames.Administrator,
-        RoleNames.Radnik,
-        RoleNames.Korisnik
+        "Administator",
+        "Radnik",
+        "Korisnik"
     };
 
     foreach (var role in roles)
@@ -83,7 +83,7 @@ using (var scope = app.Services.CreateScope())
         // AKO JE USPJEŠNO KREIRAN
         if (rezultat.Succeeded)
         {
-            await userManager.AddToRoleAsync(noviAdmin, RoleNames.Administrator);
+            await userManager.AddToRoleAsync(noviAdmin, "Administator");
         }
     }
 }
