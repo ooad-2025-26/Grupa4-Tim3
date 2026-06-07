@@ -8,10 +8,16 @@ namespace ESportskiCentar.Models
     {
         [Key]
         public int id { get; set; }
+
+        [Required]
         [DisplayName("Status slanja")]
         public bool poslana { get; set; }
+
+        [Required(ErrorMessage = "Vrijeme slanja je obavezno.")]
         [DisplayName("Predviđeno vrijeme slanja")]
         public DateTime vrijemeSlanja { get; set; }
+
+        [Required(ErrorMessage = "Rezervacija je obavezna.")]
         [ForeignKey("Rezervacija")]
         [DisplayName("Rezervacija")]
         public int rezervacijaID { get; set; }

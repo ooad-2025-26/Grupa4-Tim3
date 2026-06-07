@@ -71,19 +71,24 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            [Required]
+            [Required(ErrorMessage = "Ime je obavezno polje.")]
+            [StringLength(30, MinimumLength = 2, ErrorMessage = "Ime mora imati između 2 i 30 karaktera.")]
+            [RegularExpression(@"^[A-Za-zČčĆćŽžŠšĐđ]{2,30}$", ErrorMessage = "Ime može sadržavati samo slova.")]
             [Display(Name = "Ime")]
             public string Ime { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "Prezime je obavezno polje.")]
+            [StringLength(30, MinimumLength = 2, ErrorMessage = "Prezime mora imati između 2 i 30 karaktera.")]
+            [RegularExpression(@"^[A-Za-zČčĆćŽžŠšĐđ]{2,30}$", ErrorMessage = "Prezime može sadržavati samo slova.")]
             [Display(Name = "Prezime")]
             public string Prezime { get; set; }
 
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Email adresa je obavezna.")]
+            [EmailAddress(ErrorMessage = "Unesite validnu email adresu.")]
+            [Display(Name = "Email")]
             public string Email { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "Lozinka je obavezna.")]
             [StringLength(100, ErrorMessage = "Lozinka mora imati najmanje {2} karaktera.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Lozinka")]
@@ -91,7 +96,7 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
 
             [DataType(DataType.Password)]
             [Display(Name = "Potvrdi lozinku")]
-            [Compare("Password", ErrorMessage = "Lozinke se ne podudaraju.")]
+            [Compare("Password", ErrorMessage = "Lozanke se ne podudaraju.")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -110,7 +115,8 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
                 user.ime = Input.Ime;
-                user.prezime = Input.Prezime; 
+                user.prezime = Input.Prezime;
+                user.EmailConfirmed = true;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -132,16 +138,6 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
                 }
                 foreach (var error in result.Errors)
                 {
