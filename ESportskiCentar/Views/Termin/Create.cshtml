@@ -36,11 +36,11 @@
     <form asp-action="Create" method="post">
         <input type="hidden" asp-for="rezervisan" value="false" />
 
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
       
         <div class="mb-3">
             <label asp-for="terenID" class="form-label">Teren</label>
-            <select asp-for="terenID" class="form-select" asp-items="ViewBag.terenID">
+            <select asp-for="terenID" class="form-select" asp-items="@((SelectList)ViewData["terenID"])">
                 <option value="">-- Odaberi teren --</option>
             </select>
             <span asp-validation-for="terenID" class="text-danger"></span>

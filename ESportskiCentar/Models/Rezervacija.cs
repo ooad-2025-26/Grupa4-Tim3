@@ -38,7 +38,7 @@ namespace ESportskiCentar.Models
         [DisplayName("Ukupna cijena")]
         public double konacnaCijena { get; set; }
 
-        public Termin Termin { get; set; }
-        public Korisnik Korisnik { get; set; }
+        public Termin? Termin { get; set; }
+        public Korisnik? Korisnik { get; set; }
     }
 }

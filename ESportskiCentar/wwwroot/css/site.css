@@ -179,11 +179,13 @@ body {
     background: white;
     width: 90%;
     margin: 30px auto;
+    border-collapse: collapse !important; 
 }
 
-    .table-custom th {
-        background: var(--blue);
-        color: white;
+    .table-custom thead tr th {
+        background-color: var(--blue) !important;
+        color: white !important;
+        padding: 15px !important;
     }
 
     .table-custom td,

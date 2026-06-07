@@ -2,6 +2,6 @@
 {
     public enum Status
     {
-        OTKAZANA, IZVRSENA, NA_CEKANJU, POTVRDENA
+        OTKAZANA, NA_CEKANJU, IZVRSENA
     }
 }

@@ -24,7 +24,7 @@ namespace ESportskiCentar.Models
         [DisplayName("Rezervacija")]
         public int rezervacijaID { get; set; }
 
-        public Rezervacija Rezervacija { get; set; }
+        public Rezervacija? Rezervacija { get; set; }
 
     }
 }

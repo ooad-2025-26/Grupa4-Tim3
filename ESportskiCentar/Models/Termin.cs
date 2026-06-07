@@ -1,8 +1,9 @@
-﻿using System;
+﻿using ESportskiCentar.Attributes;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ESportskiCentar.Attributes;
 
 namespace ESportskiCentar.Models
 {
@@ -17,7 +18,7 @@ namespace ESportskiCentar.Models
         public DateTime datum { get; set; }
 
         [Required(ErrorMessage = "Cijena termina je obavezna.")]
-        [Range(1.0, 500.0, ErrorMessage = "Cijena termina mora biti između 1 i 500 KM.")] 
+        [Range(0.00, double.MaxValue, ErrorMessage = "Cijena ne može biti negativna.")]
         [DisplayName("Cijena termina")]
         public double cijena { get; set; }
 
@@ -30,6 +31,6 @@ namespace ESportskiCentar.Models
         [ForeignKey("Teren")]
         public int terenID { get; set; }
 
-        public Teren Teren { get; set; }
+        public Teren? Teren { get; set; }
     }
 }

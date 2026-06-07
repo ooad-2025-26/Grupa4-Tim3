@@ -23,6 +23,7 @@
 </section>
 
 <div class="form-panel">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <form asp-action="Index" method="get">
         <div class="row align-items-end">
 
@@ -153,11 +154,10 @@ else
                     </td>
 
                     <td>@item.konacnaCijena KM</td>
-
                     <td>
-                        @if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik"))
-                        {
-                            <a asp-action="Delete" class="btn btn-danger-custom" asp-route-id="@item.id">Otkaži</a>
+                        @if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik") && item.status == Status.NA_CEKANJU)
+                         {
+                            <a asp-action="Delete" class="btn btn-danger-custom btn-sm">Otkaži</a>
                         }
                     </td>
                 </tr>

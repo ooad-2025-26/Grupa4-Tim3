@@ -40,6 +40,6 @@ namespace ESportskiCentar.Models
         [Range(0.0, double.MaxValue, ErrorMessage = "Ukupna zarada ne može biti negativna.")]
         [DisplayName("Ukupna zarada")]
         public double ukupnaZarada { get; set; }
-        public Korisnik Korisnik { get; set; }
+        public Korisnik? Korisnik { get; set; }
     }
 }
