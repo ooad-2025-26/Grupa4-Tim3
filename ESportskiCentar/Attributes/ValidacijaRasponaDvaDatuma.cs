@@ -3,12 +3,21 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ESportskiCentar.Attributes
 {
-    public class ValidacijaRasponaDvaDatuma:ValidationAttribute
+    public class ValidacijaRasponaDvaDatuma : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext) 
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var model = (Izvjestaj)validationContext.ObjectInstance;
-            return model.datumOd <= model.datumDo ? ValidationResult.Success : new ValidationResult("Datum kraja ne može biti prije datuma početka!");
+            var model = validationContext.ObjectInstance as Izvjestaj;
+
+            if (model == null)
+            {
+                return ValidationResult.Success;
+            }
+            if (model.datumOd <= model.datumDo)
+            {
+                return ValidationResult.Success;
+            }
+            return new ValidationResult(ErrorMessage ?? "Datum kraja ne može biti prije datuma početka!");
         }
     }
 }

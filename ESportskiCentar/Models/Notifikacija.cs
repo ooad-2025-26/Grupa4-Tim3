@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using ESportskiCentar.Attributes;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,10 +12,11 @@ namespace ESportskiCentar.Models
 
         [Required]
         [DisplayName("Status slanja")]
-        public bool poslana { get; set; }
+        public bool poslana { get; set; } = false;  // default nije poslana
 
         [Required(ErrorMessage = "Vrijeme slanja je obavezno.")]
         [DisplayName("Predviđeno vrijeme slanja")]
+        [SamoBuducnost(ErrorMessage = "Vrijeme slanja mora biti unaprijed, ne možete izabrati prošlost!")]
         public DateTime vrijemeSlanja { get; set; }
 
         [Required(ErrorMessage = "Rezervacija je obavezna.")]

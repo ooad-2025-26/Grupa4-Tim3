@@ -22,16 +22,16 @@ namespace ESportskiCentar.Models
         [Required(ErrorMessage = "Korisnik je obavezan.")]
         [ForeignKey("Korisnik")]
         [DisplayName("Korisnik")]
-        public String korisnikID { get; set; }
+        public string korisnikID { get; set; } 
 
         [Required]
-        [DisplayName("Datum i vrijeme rezervacije")]
+        [DisplayName("Datum i vrijeme kreiranja rezervacije")]
         [DataType(DataType.DateTime)]
-        public DateTime vrijemeRezervacije { get; set; }
+        public DateTime vrijemeRezervacije { get; set; } = DateTime.Now; 
 
         [Required]
         [DisplayName("Popust")]
-        public bool primjenjenPopust { get; set; }
+        public bool primjenjenPopust { get; set; } = false;
 
         [Required(ErrorMessage = "Konačna cijena je obavezna.")]
         [Range(0.00, double.MaxValue, ErrorMessage = "Cijena ne može biti negativna.")]
