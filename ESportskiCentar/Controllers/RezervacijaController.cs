@@ -181,7 +181,8 @@ namespace ESportskiCentar.Controllers
             if (rezervacija == null) return NotFound();
 
             //Ne dozvoljavamo otkazivanje ako je manje od 2h do termina.
-            if (rezervacija.Termin.datum <= DateTime.Now.AddHours(2))
+            //Radnik i Adminstrator smiju otkazati ukoliko se desi nešto nepredviđeno.
+            if (rezervacija.Termin.datum <= DateTime.Now.AddHours(2) && !User.IsInRole("Administrator") && !User.IsInRole("Radnik"))
             {
                 ModelState.AddModelError("", "Otkazivanje više nije moguće.");
                 return View("Delete", rezervacija);

@@ -24,7 +24,9 @@ namespace ESportskiCentar.Controllers
         // GET: Notifikacija
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Notifikacije.Include(n => n.Rezervacija);
+            var applicationDbContext = _context.Notifikacije
+                .Include(n => n.Rezervacija)
+                .ThenInclude(r => r.Korisnik);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -38,89 +40,13 @@ namespace ESportskiCentar.Controllers
 
             var notifikacija = await _context.Notifikacije
                 .Include(n => n.Rezervacija)
+                .ThenInclude(r => r.Korisnik)
                 .FirstOrDefaultAsync(m => m.id == id);
             if (notifikacija == null)
             {
                 return NotFound();
             }
 
-            return View(notifikacija);
-        }
-
-        // GET: Notifikacija/Create
-        public IActionResult Create()
-        {
-            ViewData["rezervacijaID"] = new SelectList(_context.Rezervacije, "id", "id");
-            return View();
-        }
-
-        // POST: Notifikacija/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,poslana,vrijemeSlanja,rezervacijaID")] Notifikacija notifikacija)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(notifikacija);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["rezervacijaID"] = new SelectList(_context.Rezervacije, "id", "id", notifikacija.rezervacijaID);
-            return View(notifikacija);
-        }
-
-        // GET: Notifikacija/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var notifikacija = await _context.Notifikacije.FindAsync(id);
-            if (notifikacija == null)
-            {
-                return NotFound();
-            }
-            ViewData["rezervacijaID"] = new SelectList(_context.Rezervacije, "id", "id", notifikacija.rezervacijaID);
-            return View(notifikacija);
-        }
-
-        // POST: Notifikacija/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,poslana,vrijemeSlanja,rezervacijaID")] Notifikacija notifikacija)
-        {
-            if (id != notifikacija.id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(notifikacija);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!NotifikacijaExists(notifikacija.id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["rezervacijaID"] = new SelectList(_context.Rezervacije, "id", "id", notifikacija.rezervacijaID);
             return View(notifikacija);
         }
 

@@ -86,6 +86,7 @@ namespace ESportskiCentar.Controllers
 
             return View(izvjestaji);
         }
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -101,6 +102,7 @@ namespace ESportskiCentar.Controllers
             return View(izvjestaj);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
