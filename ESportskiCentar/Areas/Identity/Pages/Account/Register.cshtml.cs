@@ -1,7 +1,5 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+﻿// Licencirano pod .NET Foundation ugovorom.
 #nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -29,57 +27,38 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
         private readonly IUserStore<Korisnik> _userStore;
         private readonly IUserEmailStore<Korisnik> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
 
         public RegisterModel(
             UserManager<Korisnik> userManager,
             IUserStore<Korisnik> userStore,
             SignInManager<Korisnik> signInManager,
-            ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            ILogger<RegisterModel> logger)
         {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
-            _emailSender = emailSender;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string ReturnUrl { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
             [Required(ErrorMessage = "Ime je obavezno polje.")]
             [StringLength(30, MinimumLength = 2, ErrorMessage = "Ime mora imati između 2 i 30 karaktera.")]
-            [RegularExpression(@"^[A-Za-zČčĆćŽžŠšĐđ]{2,30}$", ErrorMessage = "Ime može sadržavati samo slova.")]
+            [RegularExpression(@"^[A-Za-zČčĆćŽžŠšĐđ]{2,30}$", ErrorMessage = "Ime može sadržavati samo slova (bez razmaka i crtica).")]
             [Display(Name = "Ime")]
             public string Ime { get; set; }
 
             [Required(ErrorMessage = "Prezime je obavezno polje.")]
             [StringLength(30, MinimumLength = 2, ErrorMessage = "Prezime mora imati između 2 i 30 karaktera.")]
-            [RegularExpression(@"^[A-Za-zČčĆćŽžŠšĐđ]{2,30}$", ErrorMessage = "Prezime može sadržavati samo slova.")]
+            [RegularExpression(@"^[A-Za-zČčĆćŽžŠšĐđ]{2,30}$", ErrorMessage = "Prezime može sadržavati samo slova (bez razmaka i crtica).")]
             [Display(Name = "Prezime")]
             public string Prezime { get; set; }
 
@@ -99,53 +78,65 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
             [Compare("Password", ErrorMessage = "Lozanke se ne podudaraju.")]
             public string ConfirmPassword { get; set; }
         }
-
-
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                string prethodnaStranica = Request.Headers["Referer"].ToString();
+                if (!string.IsNullOrEmpty(prethodnaStranica))
+                {
+                    return Redirect(prethodnaStranica);
+                }
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
                 user.ime = Input.Ime;
                 user.prezime = Input.Prezime;
-                user.EmailConfirmed = true;
+                user.EmailConfirmed = true; // receno da postavimo EmailConfirmed = true
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, RoleNames.Korisnik);
-                    _logger.LogInformation("User created a new account with password.");
+                    _logger.LogInformation("Korisnik je uspješno kreirao novi nalog.");
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    return LocalRedirect(returnUrl);
                 }
                 foreach (var error in result.Errors)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    string lokalizovanaGreska = error.Description;
+                    if (error.Code == "DuplicateUserName" || error.Code == "DuplicateEmail")
+                    {
+                        lokalizovanaGreska = "Korisnik sa ovom email adresom već postoji.";
+                    }
+                    else if (error.Code == "PasswordTooShort")
+                    {
+                        lokalizovanaGreska = "Lozinka je prekratka.";
+                    }
+
+                    ModelState.AddModelError(string.Empty, lokalizovanaGreska);
                 }
             }
-
-            // If we got this far, something failed, redisplay form
             return Page();
         }
 
@@ -157,9 +148,7 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(Korisnik)}'. " +
-                    $"Ensure that '{nameof(Korisnik)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+                throw new InvalidOperationException($"Nije moguće kreirati instancu klase '{nameof(Korisnik)}'.");
             }
         }
 
@@ -167,7 +156,7 @@ namespace ESportskiCentar.Areas.Identity.Pages.Account
         {
             if (!_userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
+                throw new NotSupportedException("Podrazumijevani UI zahtijeva user store sa podrškom za email.");
             }
             return (IUserEmailStore<Korisnik>)_userStore;
         }
