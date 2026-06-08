@@ -5,17 +5,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-
+using ESportskiCentar.Services;
 namespace ESportskiCentar.Controllers
 {
     [Authorize]
     public class RezervacijaController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public RezervacijaController(ApplicationDbContext context)
+        private readonly EmailService _emailService;
+            
+        public RezervacijaController(ApplicationDbContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index(DateTime? datumOd, DateTime? datumDo, Sport? sport, Status? status)
@@ -160,7 +162,25 @@ namespace ESportskiCentar.Controllers
 
             _context.Notifikacije.Add(notifikacija);
             await _context.SaveChangesAsync();
-
+            var korisnik = await _context.Users.FindAsync(korisnikId);
+            //mail
+            if (!string.IsNullOrEmpty(korisnik?.Email))
+            {
+                await _emailService.PosaljiMail(
+                    korisnik.Email,
+                    "Potvrda rezervacije",
+                    $@"
+        <h2>Rezervacija je uspješno potvrđena</h2>
+        <p><strong>Teren:</strong> {termin.Teren.naziv}</p>
+        <p><strong>Sport:</strong> {termin.Teren.sport}</p>
+        <p><strong>Datum i vrijeme:</strong> {termin.datum:dd.MM.yyyy. HH:mm}</p>
+        <p><strong>Cijena:</strong> {termin.cijena} KM</p>
+{(imaPopust// ternarni op
+    ? $"<p><strong>Popust:</strong> {popust.procenat}%</p><p><strong>Cijena sa popustom:</strong> {rezervacija.konacnaCijena} KM</p>"
+    : "")}
+        "
+                );
+            }
             return RedirectToAction(nameof(Index));
         }
 

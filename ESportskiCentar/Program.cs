@@ -2,7 +2,7 @@ using ESportskiCentar.Data;
 using ESportskiCentar.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
+using ESportskiCentar.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // CONNECTION STRING
@@ -31,7 +31,7 @@ builder.Services.AddDefaultIdentity<Korisnik>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddTransient<EmailService>();
 var app = builder.Build();
 
 
