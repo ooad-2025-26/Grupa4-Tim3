@@ -3,22 +3,20 @@ using ESportskiCentar.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ESportskiCentar.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // CONNECTION STRING
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' nije pronađen.");
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
-
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // IDENTITY + ROLE
 builder.Services.AddDefaultIdentity<Korisnik>(options =>
 {
-    // EMAIL CONFIRMATION OFF
-    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedAccount = true;
 
     // PASSWORD SETTINGS
     options.Password.RequireDigit = false;
@@ -32,62 +30,8 @@ builder.Services.AddDefaultIdentity<Korisnik>(options =>
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<EmailService>();
+
 var app = builder.Build();
-
-
-// AUTOMATSKO KREIRANJE ROLA I ADMINA
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = services.GetRequiredService<UserManager<Korisnik>>();
-
-    // ROLE
-    string[] roles =
-    {
-        "Administator",
-        "Radnik",
-        "Korisnik"
-    };
-
-    foreach (var role in roles)
-    {
-        bool postoji = await roleManager.RoleExistsAsync(role);
-
-        if (!postoji)
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
-    }
-
-    // ADMIN
-    string adminEmail = "admin@centar.ba";
-    string adminPassword = "admin123";
-
-    var admin = await userManager.FindByEmailAsync(adminEmail);
-
-    if (admin == null)
-    {
-        var noviAdmin = new Korisnik
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            ime = "Admin",
-            prezime = "Vlasnik",
-            EmailConfirmed = true
-        };
-
-        var rezultat = await userManager.CreateAsync(noviAdmin, adminPassword);
-
-        // AKO JE USPJEŠNO KREIRAN
-        if (rezultat.Succeeded)
-        {
-            await userManager.AddToRoleAsync(noviAdmin, "Administator");
-        }
-    }
-}
-
 
 // CONFIGURE PIPELINE
 if (app.Environment.IsDevelopment())
@@ -99,9 +43,7 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
 app.UseHttpsRedirection();
-
 app.UseRouting();
 
 // AUTH
