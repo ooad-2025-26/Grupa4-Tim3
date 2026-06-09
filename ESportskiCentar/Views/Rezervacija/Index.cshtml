@@ -29,18 +29,18 @@
 
             <div class="col-md-3">
                 <label>Datum od</label>
-                <input type="date"
+                <input type="text" class="form-control kalendar-datum"
                        name="datumOd"
                        value="@ViewBag.DatumOd"
-                       class="form-control" />
+                        />
             </div>
 
             <div class="col-md-3">
                 <label>Datum do</label>
-                <input type="date"
+                <input type="text" class="form-control kalendar-datum"
                        name="datumDo"
                        value="@ViewBag.DatumDo"
-                       class="form-control" />
+                       />
             </div>
 
             <div class="col-md-3">
@@ -157,7 +157,9 @@ else
                     <td>
                         @if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik") && item.status == Status.NA_CEKANJU)
                          {
-                            <a asp-action="Delete" class="btn btn-danger-custom btn-sm">Otkaži</a>
+                            <a asp-action="Delete" asp-route-id="@item.id" class="btn btn-danger-custom btn-sm">
+                                Otkaži
+                            </a>
                         }
                     </td>
                 </tr>

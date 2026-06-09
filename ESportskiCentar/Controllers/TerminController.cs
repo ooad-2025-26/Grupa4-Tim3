@@ -25,6 +25,12 @@ namespace ESportskiCentar.Controllers
                 return View(new List<Termin>());
             }
 
+            if (datumOd.HasValue && datumDo.HasValue && (datumOd < DateTime.Today || datumDo < DateTime.Today))
+            {
+                ModelState.AddModelError(string.Empty, "Ne možete tražiti termine u prošlosti!");
+                return View(new List<Termin>());
+            }
+
             var termini = _context.Termini
                 .Include(t => t.Teren)
                 .AsQueryable();

@@ -126,13 +126,29 @@ body {
         font-weight: 700;
     }
 
-.form-control,
-.form-select {
-    border-radius: 0;
-    border: none;
+.form-control, .form-select {
+    border-radius: 8px !important; /* Zaobljene ivice za sve inpute */
+    border: 2px solid #ced4da !important;
     min-height: 42px;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    color: #495057;
+    font-family: inherit;
+    transition: all 0.3s ease-in-out;
 }
 
+    /* Globalni efekat kada korisnik klikne u bilo koje polje na sajtu */
+    .form-control:focus, .form-select:focus {
+        border-color: var(--green) !important; /* Koristi tvoju zelenu za ivicu */
+        box-shadow: 0 0 0 0.25rem rgba(155, 213, 27, 0.25) !important; /* Zeleni prozirni sjaj */
+        background-color: #ffffff;
+        outline: none;
+    }
+
+/* Prisiljavanje browsera na evropski 24h format za sve kalendare i satove */
+.evropski-sat, .evropski-datum, input[type="datetime-local"], input[type="date"] {
+    lang: bs-BA;
+}
 .page-card {
     background: white;
     border-radius: 16px;

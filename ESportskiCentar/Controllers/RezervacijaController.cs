@@ -153,34 +153,43 @@ namespace ESportskiCentar.Controllers
             _context.Rezervacije.Add(rezervacija);
             await _context.SaveChangesAsync();
 
-            var notifikacija = new Notifikacija
-            {
-                rezervacijaID = rezervacija.id,
-                poslana = false,
-                vrijemeSlanja = termin.datum.AddHours(-24)
-            };
-
-            _context.Notifikacije.Add(notifikacija);
-            await _context.SaveChangesAsync();
             var korisnik = await _context.Users.FindAsync(korisnikId);
+            bool mailPoslanUspjesno = false;
             //mail
             if (!string.IsNullOrEmpty(korisnik?.Email))
             {
-                await _emailService.PosaljiMail(
-                    korisnik.Email,
-                    "Potvrda rezervacije",
-                    $@"
+                try {
+                    await _emailService.PosaljiMail(
+                        korisnik.Email,
+                        "Potvrda rezervacije",
+                        $@"
         <h2>Rezervacija je uspješno potvrđena</h2>
         <p><strong>Teren:</strong> {termin.Teren.naziv}</p>
         <p><strong>Sport:</strong> {termin.Teren.sport}</p>
         <p><strong>Datum i vrijeme:</strong> {termin.datum:dd.MM.yyyy. HH:mm}</p>
         <p><strong>Cijena:</strong> {termin.cijena} KM</p>
 {(imaPopust// ternarni op
-    ? $"<p><strong>Popust:</strong> {popust.procenat}%</p><p><strong>Cijena sa popustom:</strong> {rezervacija.konacnaCijena} KM</p>"
-    : "")}
+        ? $"<p><strong>Popust:</strong> {popust.procenat}%</p><p><strong>Cijena sa popustom:</strong> {rezervacija.konacnaCijena} KM</p>"
+        : "")}
         "
-                );
-            }
+                    );
+                    mailPoslanUspjesno = true;
+                }catch(Exception ex) 
+                {
+                    System.Diagnostics.Debug.WriteLine($"Greška pri slanju maila: {ex.Message}");
+                }
+             }
+
+            //upisivanje u notifikacije
+            var notifikacija = new Notifikacija
+            {
+                rezervacijaID = rezervacija.id,
+                vrijemeSlanja = DateTime.Now.AddMinutes(3),
+                poslana = mailPoslanUspjesno
+            };
+            _context.Notifikacije.Add(notifikacija);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -208,7 +217,9 @@ namespace ESportskiCentar.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var rezervacija = await _context.Rezervacije
+                .Include(r => r.Korisnik)
                 .Include(r => r.Termin)
+                .ThenInclude(t => t.Teren)
                 .FirstOrDefaultAsync(r => r.id == id);
 
             if (rezervacija == null) return NotFound();
@@ -219,8 +230,28 @@ namespace ESportskiCentar.Controllers
                 return View("Delete", rezervacija);
             }
 
+            if (rezervacija.Korisnik != null && !string.IsNullOrEmpty(rezervacija.Korisnik.Email))
+            {
+                try
+                {
+                    string naslov = "Otkazivanje rezervacije - E-Sportski Centar";
+                    string sadrzaj = $@"
+                    <h2>Vaša rezervacija je otkazana</h2>
+                    <p>Obavještavamo vas da je rezervacija uspješno otkazana za sljedeći termin:</p>
+                    <p><strong>Teren:</strong> {rezervacija.Termin.Teren.naziv}</p>
+                    <p><strong>Sport:</strong> {rezervacija.Termin.Teren.sport}</p>
+                    <p><strong>Datum i vrijeme:</strong> {rezervacija.Termin.datum:dd.MM.yyyy. HH:mm} sati</p>
+                    <p>Ukoliko je došlo do greške, slobodno rezervišite novi termin na našoj stranici.</p>";
+
+                    await _emailService.PosaljiMail(rezervacija.Korisnik.Email, naslov, sadrzaj);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Greška pri slanju maila za otkazivanje: {ex.Message}");
+                }
+            }
             var notifikacije = _context.Notifikacije
-                .Where(n => n.rezervacijaID == rezervacija.id);
+                                .Where(n => n.rezervacijaID == rezervacija.id);
 
             _context.Notifikacije.RemoveRange(notifikacije);
 
