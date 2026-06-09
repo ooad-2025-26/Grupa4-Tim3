@@ -151,27 +151,51 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-       
-        flatpickr(".kalendar-vrijeme", {
+
+        document.querySelectorAll(".kalendar-vrijeme").forEach(function (element) {
+    
+        var vrijednostIzBaze = element.getAttribute("value") || element.value;
+
+        flatpickr(element, {
         locale: "bs",
         enableTime: true,
         time_24hr: true,
-        minDate: "today",
         minuteIncrement: 5,
+        dateFormat: "Y-m-d H:i",
+        altInput: true,
+        altFormat: "d.m.Y. H:i",
+        allowInput: false,
 
-        dateFormat: "Y-m-d H:i",      
-        altInput: true,                
-        altFormat: "d.m.Y. H:i"        
+        defaultDate: vrijednostIzBaze ? vrijednostIzBaze : null,
+
+        onClose: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length > 0) {
+        instance.setDate(selectedDates[0], true);
+        }
+        }
+        });
         });
 
-        flatpickr(".kalendar-datum", {
+        document.querySelectorAll(".kalendar-datum").forEach(function (element) {
+        var vrijednostIzBaze = element.getAttribute("value") || element.value;
+
+        flatpickr(element, {
         locale: "bs",
         enableTime: false,
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d.m.Y.",
+        allowInput: false,
+        defaultDate: vrijednostIzBaze ? vrijednostIzBaze : null,
 
-        dateFormat: "Y-m-d",           
-        altInput: true,               
-        altFormat: "d.m.Y."       
+        onClose: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length > 0) {
+        instance.setDate(selectedDates[0], true);
+        }
+        }
         });
+        });
+
         });
     </script>
 

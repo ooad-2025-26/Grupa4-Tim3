@@ -49,7 +49,8 @@
 
         <div class="mb-3">
             <label asp-for="datum" class="form-label">Datum i vrijeme</label>
-            <input asp-for="datum" type="text" class="form-control kalendar-vrijeme" />
+            <input asp-for="datum" type="text" class="form-control kalendar-vrijeme"
+                   value="@Model.datum.ToString("yyyy-MM-ddTHH:mm")" />
             <span asp-validation-for="datum" class="text-danger"></span>
         </div>
 
