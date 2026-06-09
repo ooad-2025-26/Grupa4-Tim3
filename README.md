@@ -1,13 +1,10 @@
 <h1 align="center">
-  <img src="assets/logo.png" width="75" alt="Logo">
-  E - SPORTSKI CENTAR
+  E-SPORTSKI CENTAR
 </h1>
 
 <p align="center">
   <em>Sistem za upravljanje rezervacijama sportskih terena.</em>
 </p>
-
-Sistem za upravljanje rezervacijama sportskih terena.
 
 ## Članovi
 * **Danis Dudojević**
@@ -16,6 +13,7 @@ Sistem za upravljanje rezervacijama sportskih terena.
 
 ## Deployment
 Aplikaciju možete koristiti na sljedećem linku:
+
 [https://esportskicentar.onrender.com/](https://esportskicentar.onrender.com/)
 
 ### Testni računi
