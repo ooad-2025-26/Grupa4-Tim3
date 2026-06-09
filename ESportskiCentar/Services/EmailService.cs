@@ -17,7 +17,7 @@ namespace ESportskiCentar.Services
         {
             var email = new MimeMessage();
 
-            email.From.Add(MailboxAddress.Parse(_configuration["EmailSettings:From"]));
+            email.From.Add(MailboxAddress.Parse("esportskicentar@gmail.com"));
             email.To.Add(MailboxAddress.Parse(primaoc));
             email.Subject = naslov;
             email.Body = new TextPart("html")
@@ -27,13 +27,9 @@ namespace ESportskiCentar.Services
 
             using var smtp = new SmtpClient();
 
-            var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var port = int.Parse(_configuration["EmailSettings:Port"]);
-            await smtp.ConnectAsync(smtpServer, port, SecureSocketOptions.SslOnConnect);
+            await smtp.ConnectAsync("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
 
-            var password = _configuration["EmailSettings:Password"]?.Replace(" ", "");
-
-            await smtp.AuthenticateAsync(_configuration["EmailSettings:Username"], password);
+           await smtp.AuthenticateAsync("esportskicentar@gmail.com", "ecwwiakmmcirecyl");
 
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
