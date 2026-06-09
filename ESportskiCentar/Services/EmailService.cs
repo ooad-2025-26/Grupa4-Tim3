@@ -27,16 +27,13 @@ namespace ESportskiCentar.Services
 
             using var smtp = new SmtpClient();
 
-            await smtp.ConnectAsync(
-                _configuration["EmailSettings:SmtpServer"],
-                int.Parse(_configuration["EmailSettings:Port"]),
-                SecureSocketOptions.StartTls
-            );
+            var smtpServer = _configuration["EmailSettings:SmtpServer"];
+            var port = int.Parse(_configuration["EmailSettings:Port"]);
+            await smtp.ConnectAsync(smtpServer, port, SecureSocketOptions.SslOnConnect);
 
-            await smtp.AuthenticateAsync(
-                _configuration["EmailSettings:Username"],
-                _configuration["EmailSettings:Password"]
-            );
+            var password = _configuration["EmailSettings:Password"]?.Replace(" ", "");
+
+            await smtp.AuthenticateAsync(_configuration["EmailSettings:Username"], password);
 
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
