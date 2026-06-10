@@ -29,8 +29,7 @@ builder.Services.AddDefaultIdentity<Korisnik>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddTransient<EmailService>();
-
+builder.Services.AddHttpClient<EmailService>();
 var app = builder.Build();
 
 // CONFIGURE PIPELINE
