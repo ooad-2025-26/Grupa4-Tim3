@@ -1,4 +1,5 @@
-﻿@model ESportskiCentar.Models.Rezervacija
+﻿@using ESportskiCentar.Helpers
+@model ESportskiCentar.Models.Rezervacija
 
 @{
     ViewData["Title"] = "Otkaži rezervaciju";
@@ -75,19 +76,21 @@
     </p>
 
     <p class="text-success fw-bold">
-        Rezervaciju je moguće otkazati najkasnije 24 sata prije termina.
+        Rezervaciju je moguće otkazati najkasnije 2 sata prije termina.
     </p>
 
     <form asp-action="Delete">
 
         <input type="hidden" asp-for="id" />
-
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="text-center">
 
-            <button type="submit" class="btn btn-danger-custom">
-                Otkaži
-            </button>
-
+            @if (Model.Termin.datum > VrijemeHelper.SadaLokalno().AddHours(2) || User.IsInRole("Administrator") || User.IsInRole("Radnik"))
+            {
+                <button type="submit" class="btn btn-danger-custom">
+                    Otkaži
+                </button>
+            }
             <a asp-controller="Rezervacija"
                    asp-action="Index"
                    class="btn btn-secondary-custom ms-2">

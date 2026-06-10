@@ -1,4 +1,5 @@
 ﻿using ESportskiCentar.Data;
+using ESportskiCentar.Helpers;
 using ESportskiCentar.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,7 @@ namespace ESportskiCentar.Controllers
 
             if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik"))
             {
-                termini = termini.Where(t => !t.rezervisan && t.datum > DateTime.Now);
+                termini = termini.Where(t => !t.rezervisan && t.datum > VrijemeHelper.SadaLokalno());
             }
 
             if (datumOd.HasValue)

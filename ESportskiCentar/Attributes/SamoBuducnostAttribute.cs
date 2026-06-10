@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using ESportskiCentar.Helpers;
 
 namespace ESportskiCentar.Attributes
 {
@@ -9,7 +10,7 @@ namespace ESportskiCentar.Attributes
         {
             if (value is DateTime uneseniDatum)
             {
-                if (uneseniDatum < DateTime.Now)
+                if (uneseniDatum < VrijemeHelper.SadaLokalno())
                 {
                     return new ValidationResult(ErrorMessage ?? "Datum i vrijeme moraju biti u budućnosti.");
                 }

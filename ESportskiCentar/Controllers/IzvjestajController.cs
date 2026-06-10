@@ -1,9 +1,10 @@
-﻿using System.Security.Claims;
-using ESportskiCentar.Data;
+﻿using ESportskiCentar.Data;
+using ESportskiCentar.Helpers;
 using ESportskiCentar.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace ESportskiCentar.Controllers
 {
@@ -48,7 +49,7 @@ namespace ESportskiCentar.Controllers
             {
                 datumOd = datumOd,
                 datumDo = datumDo,
-                datumGenerisanja = DateTime.Now,
+                datumGenerisanja = VrijemeHelper.SadaLokalno(),
                 ukupnoRezervacija = rezervacije.Count,
                 ukupnaZarada = rezervacije.Sum(r => r.konacnaCijena),
                 korisnikID = prijavljeniKorisnikId

@@ -1,11 +1,12 @@
-﻿using System.Security.Claims;
-using ESportskiCentar.Data;
+﻿using ESportskiCentar.Data;
+using ESportskiCentar.Helpers;
 using ESportskiCentar.Models;
+using ESportskiCentar.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ESportskiCentar.Services;
+using System.Security.Claims;
 namespace ESportskiCentar.Controllers
 {
     [Authorize]
@@ -31,7 +32,7 @@ namespace ESportskiCentar.Controllers
             // Automatsko ažuriranje statusa u IZVRSENA za termine koji su prošli
             var prosleRezervacije = await _context.Rezervacije
                 .Include(r => r.Termin)
-                .Where(r => r.status == Status.NA_CEKANJU && r.Termin.datum < DateTime.Now)
+                .Where(r => r.status == Status.NA_CEKANJU && r.Termin.datum < VrijemeHelper.SadaLokalno())
                 .ToListAsync();
 
             foreach (var r in prosleRezervacije)
@@ -128,8 +129,8 @@ namespace ESportskiCentar.Controllers
             int brojRezervacija = await _context.Rezervacije
                 .CountAsync(r =>
                     r.korisnikID == korisnikId &&
-                    r.vrijemeRezervacije.Month == DateTime.Now.Month &&
-                    r.vrijemeRezervacije.Year == DateTime.Now.Year);
+                    r.vrijemeRezervacije.Month == VrijemeHelper.SadaLokalno().Month &&
+                    r.vrijemeRezervacije.Year == VrijemeHelper.SadaLokalno().Year);
 
             var popust = await _context.Popusti
                 .Where(p => brojRezervacija >= p.potrebanBrojRezervacija)
@@ -144,7 +145,7 @@ namespace ESportskiCentar.Controllers
 
             rezervacija.korisnikID = korisnikId;
             rezervacija.status = Status.NA_CEKANJU;
-            rezervacija.vrijemeRezervacije = DateTime.Now;
+            rezervacija.vrijemeRezervacije = VrijemeHelper.SadaLokalno();
             rezervacija.primjenjenPopust = imaPopust;
             rezervacija.konacnaCijena = cijena;
 
@@ -184,7 +185,7 @@ namespace ESportskiCentar.Controllers
             var notifikacija = new Notifikacija
             {
                 rezervacijaID = rezervacija.id,
-                vrijemeSlanja = DateTime.Now.AddMinutes(3),
+                vrijemeSlanja = VrijemeHelper.SadaLokalno().AddMinutes(3),
                 poslana = mailPoslanUspjesno
             };
             _context.Notifikacije.Add(notifikacija);
@@ -206,7 +207,7 @@ namespace ESportskiCentar.Controllers
 
             if (rezervacija == null) return NotFound();
 
-            if (User.IsInRole("Korisnik") && rezervacija.korisnikID != korisnikId)
+            if (rezervacija.korisnikID != korisnikId)
                 return Forbid();
 
             return View(rezervacija);
@@ -224,7 +225,11 @@ namespace ESportskiCentar.Controllers
 
             if (rezervacija == null) return NotFound();
 
-            if (rezervacija.Termin.datum <= DateTime.Now.AddHours(2) && !User.IsInRole("Administrator") && !User.IsInRole("Radnik"))
+            var korisnikId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (rezervacija.korisnikID != korisnikId)
+                return Forbid();
+
+            if (rezervacija.Termin.datum <= VrijemeHelper.SadaLokalno().AddHours(2) && !User.IsInRole("Administrator") && !User.IsInRole("Radnik"))
             {
                 ModelState.AddModelError("", "Otkazivanje više nije moguće.");
                 return View("Delete", rezervacija);
