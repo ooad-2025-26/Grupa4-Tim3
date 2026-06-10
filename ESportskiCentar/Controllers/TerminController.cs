@@ -97,12 +97,6 @@ namespace ESportskiCentar.Controllers
             termin.rezervisan = false;
             ModelState.Remove("rezervisan");
 
-            // FIX 2: Poredimo bez sekundi da izbjegnemo timezone probleme
-            if (termin.datum <= DateTime.Now.AddMinutes(-1))
-            {
-                ModelState.AddModelError("datum", "Ne možete dodati termin u prošlosti.");
-            }
-
             bool postojiTermin = await _context.Termini.AnyAsync(t =>
                 t.terenID == termin.terenID && t.datum == termin.datum);
 
@@ -173,11 +167,7 @@ namespace ESportskiCentar.Controllers
             termin.rezervisan = false;
             ModelState.Remove("rezervisan");
 
-            if (termin.datum <= DateTime.Now.AddMinutes(-1))
-            {
-                ModelState.AddModelError("datum", "Ne možete postaviti termin u prošlosti.");
-            }
-
+            
             if (!ModelState.IsValid)
             {
                 ViewData["terenID"] = new SelectList(_context.Tereni, "id", "naziv", termin.terenID);
