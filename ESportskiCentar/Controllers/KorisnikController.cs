@@ -19,20 +19,28 @@ namespace ESportskiCentar.Controllers
         // Samo administrator vidi listu korisnika.
         public IActionResult Index(string pretraga)
         {
+            if (!string.IsNullOrWhiteSpace(pretraga))
+            {
+                var provjera = new System.Text.RegularExpressions.Regex(@"^[A-Za-zČčĆćŽžŠšĐđ ]+$");
+                if (!provjera.IsMatch(pretraga))
+                {
+                    ModelState.AddModelError("pretraga", "Pretraga može sadržavati samo slova.");
+                    ViewBag.Pretraga = pretraga;
+                    return View(new List<Korisnik>());
+                }
+            }
             var korisnici = _userManager.Users.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pretraga))
             {
-                pretraga = pretraga.ToLower();
-
+                var p = pretraga.ToLower();
                 korisnici = korisnici.Where(k =>
-                    (k.ime + " " + k.prezime).ToLower().Contains(pretraga) ||
-                    k.ime.ToLower().Contains(pretraga) ||
-                    k.prezime.ToLower().Contains(pretraga));
+                    (k.ime + " " + k.prezime).ToLower().Contains(p) ||
+                    k.ime.ToLower().Contains(p) ||
+                    k.prezime.ToLower().Contains(p));
             }
 
             ViewBag.Pretraga = pretraga;
-
             return View(korisnici.ToList());
         }
 

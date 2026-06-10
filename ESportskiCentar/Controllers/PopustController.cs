@@ -64,6 +64,13 @@ namespace ESportskiCentar.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                var greske = ModelState
+                    .Where(x => x.Value.Errors.Any())
+                    .Select(x => $"{x.Key}: {string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))}");
+                TempData["Greska"] = string.Join(" | ", greske);
+            }
             return View(popust);
         }
 
@@ -115,6 +122,13 @@ namespace ESportskiCentar.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                var greske = ModelState
+                    .Where(x => x.Value.Errors.Any())
+                    .Select(x => $"{x.Key}: {string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))}");
+                TempData["Greska"] = string.Join(" | ", greske);
+            }
             return View(popust);
         }
 
@@ -125,7 +139,6 @@ namespace ESportskiCentar.Controllers
             {
                 return NotFound();
             }
-
             var popust = await _context.Popusti
                 .FirstOrDefaultAsync(m => m.id == id);
             if (popust == null)

@@ -28,25 +28,26 @@
 <div class="form-panel">
 
     <form asp-action="Index" method="get">
-
         <div class="row align-items-end">
 
             <div class="col-md-9">
 
                 <label>Pretraga korisnika</label>
-
+                @if (!string.IsNullOrWhiteSpace(ViewBag.Pretraga as string) && ViewData.ModelState["pretraga"]?.Errors.Any() == true)
+                {
+                    <span class="text-danger"><br />@ViewData.ModelState["pretraga"].Errors[0].ErrorMessage</span>
+                }
                 <input type="text"
                        name="pretraga"
                        value="@ViewBag.Pretraga"
-                       class="form-control"
+                       class="form-control @(!string.IsNullOrWhiteSpace(ViewBag.Pretraga as string) && ViewData.ModelState["pretraga"]?.Errors.Any() == true ? "is-invalid" : "")"
                        placeholder="Unesite ime ili prezime..." />
-
             </div>
 
             <div class="col-md-3">
 
                 <button type="submit"
-                        class="btn btn-main w-200">
+                        class="btn btn-main w-150">
                     Pretraži
                 </button>
 

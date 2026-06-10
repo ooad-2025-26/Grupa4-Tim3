@@ -158,7 +158,7 @@ else
 
                     <td>@item.konacnaCijena KM</td>
                     <td>
-                        @if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik") && item.status == Status.NA_CEKANJU)
+                        @if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik") && item.status == Status.CEKANJE)
                          {
                             <a asp-action="Delete" asp-route-id="@item.id" class="btn btn-danger-custom btn-sm">
                                 Otkaži

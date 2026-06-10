@@ -20,6 +20,7 @@ namespace ESportskiCentar.Models
         [Required(ErrorMessage = "Cijena termina je obavezna.")]
         [Range(0.00, double.MaxValue, ErrorMessage = "Cijena ne može biti negativna.")]
         [DisplayName("Cijena termina")]
+        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Cijena mora biti broj (npr. 15 ili 15.50)!")]
         public double cijena { get; set; }
 
         [Required]

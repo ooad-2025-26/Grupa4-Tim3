@@ -26,7 +26,7 @@ namespace ESportskiCentar.Controllers
                 return View(new List<Termin>());
             }
 
-            if (datumOd.HasValue && datumDo.HasValue && (datumOd < DateTime.Today || datumDo < DateTime.Today))
+            if (!User.IsInRole("Administrator") && !User.IsInRole("Radnik") && (datumOd <  VrijemeHelper.SadaLokalno() || datumDo < VrijemeHelper.SadaLokalno()))
             {
                 ModelState.AddModelError(string.Empty, "Ne možete tražiti termine u prošlosti!");
                 return View(new List<Termin>());

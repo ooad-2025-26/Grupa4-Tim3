@@ -32,7 +32,7 @@ namespace ESportskiCentar.Controllers
             // Automatsko ažuriranje statusa u IZVRSENA za termine koji su prošli
             var prosleRezervacije = await _context.Rezervacije
                 .Include(r => r.Termin)
-                .Where(r => r.status == Status.NA_CEKANJU && r.Termin.datum < VrijemeHelper.SadaLokalno())
+                .Where(r => r.status == Status.CEKANJE && r.Termin.datum < VrijemeHelper.SadaLokalno())
                 .ToListAsync();
 
             foreach (var r in prosleRezervacije)
@@ -144,7 +144,7 @@ namespace ESportskiCentar.Controllers
             }
 
             rezervacija.korisnikID = korisnikId;
-            rezervacija.status = Status.NA_CEKANJU;
+            rezervacija.status = Status.CEKANJE;
             rezervacija.vrijemeRezervacije = VrijemeHelper.SadaLokalno();
             rezervacija.primjenjenPopust = imaPopust;
             rezervacija.konacnaCijena = cijena;
